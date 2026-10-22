@@ -1,0 +1,23 @@
+{
+  "config": "mobilenetv2_probe_field",
+  "classes": [
+    "Early_blight",
+    "Healthy",
+    "Late_blight",
+    "Leaf Miner",
+    "Magnesium Deficiency",
+    "Nitrogen Deficiency",
+    "Spotted Wilt Virus"
+  ],
+  "img_size": 224,
+  "C": 0.3,
+  "trained_on": "clean lab train + val (1778) + Tomato-Village field leaves (1141)",
+  "uncertain_threshold": 0.85,
+  "threshold_rule": "lowest threshold whose answered photos are at least 80% correct (out-of-fold lab + field)",
+  "threshold_answered_share": 0.569,
+  "threshold_accuracy_on_answered": 0.8,
+  "field_cv_macro_f1": 0.537,
+  "test_accuracy": 0.699,
+  "test_macro_f1": 0.554,
+  "plantdoc_accuracy": 0.092
+}

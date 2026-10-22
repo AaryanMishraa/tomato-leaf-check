@@ -1,0 +1,200 @@
+{
+  "_meta": {
+    "version": "2026-10-21",
+    "sources": {
+      "tnau": {"title": "TNAU Agritech Portal, Crop Protection: Tomato (Crop Production Guide, Horticulture 2020, updated 2023)", "url": "https://agritech.tnau.ac.in/crop_protection/crop_prot_crop%20diseases_veg_tomato.html"},
+      "tnau_eb": {"title": "TNAU Agritech Portal: Early blight of tomato", "url": "https://agritech.tnau.ac.in/crop_protection/tomato_diseases_2.html"},
+      "tnau_lb": {"title": "TNAU Agritech Portal: Late blight of tomato", "url": "https://agritech.tnau.ac.in/crop_protection/tomato_diseases_8.html"},
+      "tnau_swv": {"title": "TNAU Agritech Portal: Tomato spotted wilt / groundnut bud necrosis", "url": "https://agritech.tnau.ac.in/crop_protection/tomato_diseases_7.html"},
+      "tnau_lm": {"title": "TNAU Agritech Portal: Serpentine leaf miner", "url": "https://agritech.tnau.ac.in/crop_protection/tomato/tomato_2.html"},
+      "tnau_mg": {"title": "TNAU Agritech Portal: Magnesium deficiency in tomato", "url": "https://agritech.tnau.ac.in/horticulture/plant_nutri/tomato_magnesium.html"},
+      "tnau_n": {"title": "TNAU Agritech Portal: Nitrogen deficiency in tomato", "url": "https://agritech.tnau.ac.in/horticulture/plant_nutri/tomato_nitrogen.html"},
+      "niphm": {"title": "AESA-based IPM Package No. 18: Tomato (NIPHM, NCIPM and Directorate of Plant Protection, Govt. of India)", "url": "https://www.niphm.gov.in/IPMPackages/Tomato.pdf"},
+      "ucipm_lb": {"title": "UC IPM Pest Management Guidelines: Tomato late blight", "url": "https://ipm.ucanr.edu/agriculture/tomato/late-blight/"}
+    },
+    "spray_warning": "Spray names and doses are copied from the sources listed (per acre unless stated). Use only products registered for tomato, read and follow the label, wear protective clothing, respect the waiting period before harvest, and confirm with your nearest Krishi Vigyan Kendra (KVK) or agriculture officer before spraying.",
+    "app_warning": "This app learnt from tomato leaves photographed on paper and in fields in Rajasthan. On photos from other places and cameras it is often wrong (in our tests, below 20% on internet field photos), so treat every answer as a hint, not a diagnosis."
+  },
+  "_uncertain": {
+    "title": "Not sure",
+    "message": "The model is not confident about this photo. Its two best guesses are shown below, but do not act on them alone.",
+    "retake_tips": [
+      "Photograph one leaf, filling most of the frame.",
+      "Use daylight; avoid harsh shadows and flash.",
+      "Put the leaf on a plain light background if you can.",
+      "Keep the camera steady so the spots are sharp."
+    ],
+    "expert": "If the problem is spreading, show the plant to your nearest Krishi Vigyan Kendra (KVK) or agriculture officer."
+  },
+  "Early_blight": {
+    "title": "Early blight",
+    "kind": "Fungal disease",
+    "cause": "Fungus Alternaria solani",
+    "urgency": "medium",
+    "signs": [
+      "Brown spots with rings inside, like a target (bull's-eye), often with a yellow edge.",
+      "Usually starts on the older, lower leaves.",
+      "Fruit can show brown rings near the stalk."
+    ],
+    "act_now": [
+      "Pick off badly spotted lower leaves and destroy them away from the field.",
+      "Keep leaves dry: water at the base, not over the plant."
+    ],
+    "sprays": [
+      {"product": "Azoxystrobin 23% SC", "dose": "200 ml/acre", "source": "tnau_eb"},
+      {"product": "Mancozeb 35% SC", "dose": "1 kg/acre", "source": "tnau_eb"},
+      {"product": "Azoxystrobin 18.2% + Difenoconazole 11.4% SC", "dose": "200 ml/acre", "source": "tnau_eb"}
+    ],
+    "prevent": [
+      "Remove and destroy crop debris after harvest.",
+      "Rotate crops: do not grow tomato in the same plot season after season.",
+      "Treat seed with Trichoderma asperellum at 4 g per kg of seed."
+    ],
+    "expert": "If spots spread to the upper leaves or the fruit within a week despite these steps.",
+    "sources": ["tnau_eb", "niphm"]
+  },
+  "Late_blight": {
+    "title": "Late blight",
+    "kind": "Disease caused by a water mould",
+    "cause": "Phytophthora infestans",
+    "urgency": "high",
+    "signs": [
+      "Dark, water-soaked patches that spread fast until the whole leaf dies.",
+      "White fuzzy growth on the underside of the leaf in humid weather.",
+      "Fruit gets dark brown patches and rots."
+    ],
+    "act_now": [
+      "Act within days: it spreads very fast in cool, humid, wet weather.",
+      "Remove and destroy infected leaves or plants away from the field.",
+      "Stop overhead watering and improve drainage."
+    ],
+    "sprays": [
+      {"product": "Cyazofamid 34.5% SC", "dose": "80 ml/acre", "source": "tnau_lb"},
+      {"product": "Mancozeb 35% SC", "dose": "1000 g/acre", "source": "tnau_lb"},
+      {"product": "Azoxystrobin 23% SC", "dose": "200 ml/acre", "source": "tnau_lb"}
+    ],
+    "prevent": [
+      "Ensure good drainage and rotate crops.",
+      "Apply Trichoderma asperellum to the soil at 1 kg/acre.",
+      "Remove volunteer tomato and potato plants and nightshade weeds near the field."
+    ],
+    "expert": "Immediately if several plants are affected: late blight spreads to neighbouring fields.",
+    "sources": ["tnau_lb", "ucipm_lb"]
+  },
+  "Spotted Wilt Virus": {
+    "title": "Spotted wilt (tospovirus)",
+    "kind": "Virus disease spread by thrips",
+    "cause": "Tomato spotted wilt virus / groundnut bud necrosis virus, carried by thrips",
+    "urgency": "high",
+    "signs": [
+      "Yellow or dead rings and spots on leaves; young leaves turn bronze.",
+      "Growing tips die back and the plant is stunted and wilts.",
+      "Fruit shows yellow rings."
+    ],
+    "act_now": [
+      "There is no cure for an infected plant: pull out and destroy infected plants (especially in the first 45 days after planting) so they stop feeding the thrips.",
+      "Check for thrips: tiny insects on young leaves and flowers. Blue sticky traps (4-5 per acre) help you see them."
+    ],
+    "sprays": [
+      {"product": "Imidacloprid 17.8 SL (against thrips)", "dose": "250 ml/ha", "source": "tnau_swv"},
+      {"product": "Cyantraniliprole 10.26 OD (against thrips)", "dose": "900 ml/ha", "source": "tnau_swv"}
+    ],
+    "prevent": [
+      "Transplant only healthy seedlings.",
+      "Grow a border of sorghum, maize or bajra around the field as a barrier.",
+      "Conserve natural enemies such as predatory thrips; avoid unnecessary broad-spectrum sprays."
+    ],
+    "expert": "If more than a few plants show symptoms: the sprays only slow the thrips, they do not cure the plants.",
+    "sources": ["tnau_swv", "niphm"]
+  },
+  "Leaf Miner": {
+    "title": "Leaf miner",
+    "kind": "Insect pest",
+    "cause": "Serpentine leaf miner (Liriomyza trifolii), a small fly whose larvae tunnel inside leaves",
+    "urgency": "medium",
+    "signs": [
+      "Pale, winding tunnels (mines) inside the leaf.",
+      "Heavily mined leaves dry up and drop."
+    ],
+    "act_now": [
+      "Collect and destroy mined leaves.",
+      "Put up yellow sticky traps, about 10 per acre, to catch the adult flies."
+    ],
+    "sprays": [
+      {"product": "Neem seed kernel extract (NSKE)", "dose": "5%", "source": "tnau_lm"},
+      {"product": "Cyantraniliprole 10.26 OD", "dose": "1.8 ml per litre of water", "source": "tnau_lm"}
+    ],
+    "prevent": [
+      "Avoid giving too much nitrogen fertiliser: soft, lush leaves attract leaf miners.",
+      "Intercropping with beans reduces attack.",
+      "Protect the tiny wasps that kill leaf miners: avoid broad-spectrum sprays when few mines are present."
+    ],
+    "expert": "If most leaves on many plants are mined, or new mines keep appearing after two weeks.",
+    "sources": ["tnau_lm", "niphm"]
+  },
+  "Magnesium Deficiency": {
+    "title": "Magnesium deficiency",
+    "kind": "Nutrient deficiency",
+    "cause": "Not enough magnesium reaching the plant",
+    "urgency": "low",
+    "signs": [
+      "Yellowing between the veins while the veins stay green, starting on older leaves.",
+      "Yellowing moves from the bottom of the plant upwards; affected parts later turn brown."
+    ],
+    "act_now": [
+      "Spray magnesium sulphate (MgSO4) at 2% on the leaves, twice, two weeks apart."
+    ],
+    "sprays": [
+      {"product": "Magnesium sulphate (foliar)", "dose": "2%, twice at a 2-week interval", "source": "tnau_mg"}
+    ],
+    "prevent": [
+      "Get the soil tested.",
+      "Soil application: dolomite at 2 t/ha or magnesium sulphate at 20 kg/ha."
+    ],
+    "expert": "If new leaves also turn yellow after the sprays: the cause may be another nutrient or a disease.",
+    "sources": ["tnau_mg"]
+  },
+  "Nitrogen Deficiency": {
+    "title": "Nitrogen deficiency",
+    "kind": "Nutrient deficiency",
+    "cause": "Not enough nitrogen for the plant",
+    "urgency": "low",
+    "signs": [
+      "Older leaves turn yellowish green first; in severe cases the whole plant is pale.",
+      "Thin, weak growth; small leaflets, sometimes with pinkish veins underneath.",
+      "Flower buds yellow and drop; fruits stay small."
+    ],
+    "act_now": [
+      "Spray urea at 1% on the leaves, twice, one week apart."
+    ],
+    "sprays": [
+      {"product": "Urea (foliar)", "dose": "1%, twice at a 1-week interval", "source": "tnau_n"}
+    ],
+    "prevent": [
+      "Get the soil tested and apply nitrogen fertiliser in split doses as recommended for your area.",
+      "Do not overdo it: too much nitrogen attracts leaf miners."
+    ],
+    "expert": "If the plant stays pale after feeding: check roots, waterlogging and other nutrients.",
+    "sources": ["tnau_n", "niphm"]
+  },
+  "Healthy": {
+    "title": "Looks healthy",
+    "kind": "No problem found",
+    "cause": "",
+    "urgency": "none",
+    "signs": [
+      "No spots, mines or unusual yellowing found on this leaf."
+    ],
+    "act_now": [
+      "Nothing to do for this leaf. Keep checking the field at least once a week."
+    ],
+    "sprays": [],
+    "prevent": [
+      "Yellow sticky traps (about 10 per acre) to watch for leaf miners; blue traps (4-5 per acre) for thrips.",
+      "Avoid excess nitrogen and overhead watering.",
+      "Remove weeds and volunteer tomato plants; rotate crops each season."
+    ],
+    "expert": "If other plants look different from this one, photograph those too.",
+    "sources": ["niphm"]
+  }
+}
