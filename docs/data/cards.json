@@ -1,0 +1,265 @@
+{
+  "_meta": {
+    "version": "2026-10-23",
+    "sources": {
+      "tnau": {"title": "TNAU Agritech Portal, Crop Protection: Tomato (Crop Production Guide, Horticulture 2020, updated 2023)", "url": "https://agritech.tnau.ac.in/crop_protection/crop_prot_crop%20diseases_veg_tomato.html"},
+      "tnau_eb": {"title": "TNAU Agritech Portal: Early blight of tomato", "url": "https://agritech.tnau.ac.in/crop_protection/tomato_diseases_2.html"},
+      "tnau_lb": {"title": "TNAU Agritech Portal: Late blight of tomato", "url": "https://agritech.tnau.ac.in/crop_protection/tomato_diseases_8.html"},
+      "tnau_swv": {"title": "TNAU Agritech Portal: Tomato spotted wilt / groundnut bud necrosis", "url": "https://agritech.tnau.ac.in/crop_protection/tomato_diseases_7.html"},
+      "tnau_lm": {"title": "TNAU Agritech Portal: Serpentine leaf miner", "url": "https://agritech.tnau.ac.in/crop_protection/tomato/tomato_2.html"},
+      "tnau_mg": {"title": "TNAU Agritech Portal: Magnesium deficiency in tomato", "url": "https://agritech.tnau.ac.in/horticulture/plant_nutri/tomato_magnesium.html"},
+      "tnau_n": {"title": "TNAU Agritech Portal: Nitrogen deficiency in tomato", "url": "https://agritech.tnau.ac.in/horticulture/plant_nutri/tomato_nitrogen.html"},
+      "niphm": {"title": "AESA-based IPM Package No. 18: Tomato (NIPHM, NCIPM and Directorate of Plant Protection, Govt. of India)", "url": "https://www.niphm.gov.in/IPMPackages/Tomato.pdf"},
+      "ucipm_lb": {"title": "UC IPM Pest Management Guidelines: Tomato late blight", "url": "https://ipm.ucanr.edu/agriculture/tomato/late-blight/"}
+    },
+    "spray_warning": {
+      "en": "Spray names and doses are copied from the sources listed (per acre unless stated). Use only products registered for tomato, read and follow the label, wear protective clothing, respect the waiting period before harvest, and confirm with your nearest Krishi Vigyan Kendra (KVK) or agriculture officer before spraying.",
+      "hi": "दवाओं के नाम और मात्रा नीचे दिए स्रोतों से ली गई हैं (जहाँ अलग न लिखा हो, प्रति एकड़)। केवल टमाटर के लिए पंजीकृत दवा ही इस्तेमाल करें, लेबल पढ़कर उसका पालन करें, सुरक्षा कपड़े पहनें, तुड़ाई से पहले की प्रतीक्षा अवधि का ध्यान रखें, और छिड़काव से पहले नज़दीकी कृषि विज्ञान केंद्र (KVK) या कृषि अधिकारी से पुष्टि करें।",
+      "mr": "औषधांची नावे व मात्रा खाली दिलेल्या स्रोतांमधून घेतली आहेत (वेगळे लिहिले नसल्यास, प्रति एकर). फक्त टोमॅटोसाठी नोंदणीकृत औषधेच वापरा, लेबल वाचून त्याप्रमाणे वापरा, संरक्षक कपडे घाला, काढणीपूर्वीचा प्रतीक्षा कालावधी पाळा, आणि फवारणीपूर्वी जवळच्या कृषी विज्ञान केंद्र (KVK) किंवा कृषी अधिकाऱ्यांकडून खात्री करून घ्या."
+    },
+    "app_warning": {
+      "en": "This app learnt from tomato leaves photographed on paper and in fields in Rajasthan. On photos from other places and cameras it is often wrong (in our tests, about 1 in 10 right on internet field photos), so treat every answer as a hint, not a diagnosis.",
+      "hi": "यह ऐप राजस्थान में कागज़ पर और खेतों में खींची गई टमाटर की पत्तियों की फ़ोटो से सीखा है। दूसरी जगहों और कैमरों की फ़ोटो पर यह अक्सर गलत होता है (हमारी जाँच में इंटरनेट की खेत वाली फ़ोटो पर लगभग 10 में से 1 ही सही), इसलिए हर जवाब को संकेत मानें, पक्का निदान नहीं।",
+      "mr": "हे ॲप राजस्थानमध्ये कागदावर आणि शेतात काढलेल्या टोमॅटोच्या पानांच्या फोटोंवरून शिकले आहे. इतर ठिकाणच्या व इतर कॅमेऱ्यांच्या फोटोंवर ते अनेकदा चुकते (आमच्या चाचणीत इंटरनेटवरील शेतातील फोटोंवर साधारण 10 पैकी 1 बरोबर), म्हणून प्रत्येक उत्तर एक संकेत समजा, पक्के निदान नाही."
+    }
+  },
+  "_uncertain": {
+    "title": {"en": "Not sure", "hi": "पक्का नहीं", "mr": "खात्री नाही"},
+    "message": {
+      "en": "The model is not confident about this photo. Its two best guesses are shown below, but do not act on them alone.",
+      "hi": "इस फ़ोटो पर मॉडल को भरोसा नहीं है। इसके दो सबसे अच्छे अनुमान नीचे हैं, पर सिर्फ़ इन्हीं के आधार पर कोई कदम न उठाएँ।",
+      "mr": "या फोटोबद्दल मॉडेलला खात्री नाही. त्याचे दोन सर्वोत्तम अंदाज खाली दिले आहेत, पण फक्त त्यांच्या आधारे कोणताही उपाय करू नका."
+    },
+    "retake_tips": {
+      "en": ["Photograph one leaf, filling most of the frame.", "Use daylight; avoid harsh shadows and flash.", "Put the leaf on a plain light background if you can.", "Keep the camera steady so the spots are sharp."],
+      "hi": ["एक ही पत्ती की फ़ोटो लें, जो फ़्रेम का ज़्यादातर हिस्सा भर दे।", "दिन की रोशनी में लें; गहरी छाया और फ़्लैश से बचें।", "हो सके तो पत्ती को सादे, हल्के रंग की सतह पर रखें।", "कैमरा स्थिर रखें ताकि धब्बे साफ़ दिखें।"],
+      "mr": ["एकाच पानाचा फोटो घ्या, जे फ्रेमचा बहुतेक भाग व्यापेल.", "दिवसाच्या प्रकाशात घ्या; गडद सावली आणि फ्लॅश टाळा.", "शक्य असल्यास पान साध्या, फिकट रंगाच्या पृष्ठभागावर ठेवा.", "कॅमेरा स्थिर ठेवा म्हणजे ठिपके स्पष्ट दिसतील."]
+    },
+    "expert": {
+      "en": "If the problem is spreading, show the plant to your nearest Krishi Vigyan Kendra (KVK) or agriculture officer.",
+      "hi": "अगर समस्या फैल रही है, तो पौधा नज़दीकी कृषि विज्ञान केंद्र (KVK) या कृषि अधिकारी को दिखाएँ।",
+      "mr": "समस्या पसरत असल्यास, रोप जवळच्या कृषी विज्ञान केंद्र (KVK) किंवा कृषी अधिकाऱ्यांना दाखवा."
+    }
+  },
+  "Early_blight": {
+    "title": {"en": "Early blight", "hi": "अगेती झुलसा (अर्ली ब्लाइट)", "mr": "लवकर येणारा करपा (अर्ली ब्लाइट)"},
+    "kind": {"en": "Fungal disease", "hi": "फफूंद से होने वाला रोग", "mr": "बुरशीजन्य रोग"},
+    "cause": {"en": "Fungus Alternaria solani", "hi": "फफूंद Alternaria solani", "mr": "बुरशी Alternaria solani"},
+    "urgency": "medium",
+    "hint": {"en": "Brown spots with target-like rings", "hi": "निशाने जैसे छल्लों वाले भूरे धब्बे", "mr": "निशाणासारख्या वर्तुळांचे तपकिरी ठिपके"},
+    "signs": {
+      "en": ["Brown spots with rings inside, like a target (bull's-eye), often with a yellow edge.", "Usually starts on the older, lower leaves.", "Fruit can show brown rings near the stalk."],
+      "hi": ["भूरे धब्बे जिनके अंदर निशाने (बुल्स-आई) जैसे छल्ले होते हैं, अक्सर पीले किनारे के साथ।", "आमतौर पर पुरानी, नीचे की पत्तियों से शुरू होता है।", "फल पर डंठल के पास भूरे छल्ले दिख सकते हैं।"],
+      "mr": ["आत निशाणासारखी (बुल्स-आय) वर्तुळे असलेले तपकिरी ठिपके, अनेकदा पिवळ्या कडेसह.", "सहसा जुन्या, खालच्या पानांपासून सुरू होतो.", "फळावर देठाजवळ तपकिरी वर्तुळे दिसू शकतात."]
+    },
+    "act_now": {
+      "en": ["Pick off badly spotted lower leaves and destroy them away from the field.", "Keep leaves dry: water at the base, not over the plant."],
+      "hi": ["ज़्यादा धब्बों वाली नीचे की पत्तियाँ तोड़ें और खेत से दूर नष्ट करें।", "पत्तियाँ सूखी रखें: पानी जड़ के पास दें, पौधे के ऊपर नहीं।"],
+      "mr": ["जास्त ठिपके असलेली खालची पाने तोडा आणि शेतापासून दूर नष्ट करा.", "पाने कोरडी ठेवा: पाणी मुळाशी द्या, रोपावरून नाही."]
+    },
+    "sprays": [
+      {"product": "Azoxystrobin 23% SC", "dose": {"en": "200 ml/acre", "hi": "200 मि.ली./एकड़", "mr": "200 मि.लि./एकर"}, "source": "tnau_eb"},
+      {"product": "Mancozeb 35% SC", "dose": {"en": "1 kg/acre", "hi": "1 कि.ग्रा./एकड़", "mr": "1 किलो/एकर"}, "source": "tnau_eb"},
+      {"product": "Azoxystrobin 18.2% + Difenoconazole 11.4% SC", "dose": {"en": "200 ml/acre", "hi": "200 मि.ली./एकड़", "mr": "200 मि.लि./एकर"}, "source": "tnau_eb"}
+    ],
+    "prevent": {
+      "en": ["Remove and destroy crop debris after harvest.", "Rotate crops: do not grow tomato in the same plot season after season.", "Treat seed with Trichoderma asperellum at 4 g per kg of seed."],
+      "hi": ["तुड़ाई के बाद फसल के अवशेष हटाकर नष्ट करें।", "फसल चक्र अपनाएँ: एक ही खेत में हर मौसम टमाटर न उगाएँ।", "बीज को ट्राइकोडर्मा एस्पेरेलम से 4 ग्राम प्रति कि.ग्रा. बीज की दर से उपचारित करें।"],
+      "mr": ["काढणीनंतर पिकाचे अवशेष काढून नष्ट करा.", "पीक फेरपालट करा: एकाच शेतात दर हंगामात टोमॅटो घेऊ नका.", "बियाण्याला ट्रायकोडर्मा ॲस्पेरेलम 4 ग्रॅम प्रति किलो बियाणे या प्रमाणात बीजप्रक्रिया करा."]
+    },
+    "expert": {
+      "en": "If spots spread to the upper leaves or the fruit within a week despite these steps.",
+      "hi": "अगर इन उपायों के बाद भी एक हफ़्ते में धब्बे ऊपर की पत्तियों या फल तक फैल जाएँ।",
+      "mr": "हे उपाय करूनही आठवड्याभरात ठिपके वरच्या पानांवर किंवा फळांवर पसरल्यास."
+    },
+    "sources": ["tnau_eb", "niphm"]
+  },
+  "Late_blight": {
+    "title": {"en": "Late blight", "hi": "पछेती झुलसा (लेट ब्लाइट)", "mr": "उशिरा येणारा करपा (लेट ब्लाइट)"},
+    "kind": {"en": "Disease caused by a water mould", "hi": "फफूंद जैसे जीव (वॉटर मोल्ड) से होने वाला रोग", "mr": "बुरशीसारख्या जीवामुळे (वॉटर मोल्ड) होणारा रोग"},
+    "cause": {"en": "Phytophthora infestans", "hi": "Phytophthora infestans", "mr": "Phytophthora infestans"},
+    "urgency": "high",
+    "hint": {"en": "Large dark, water-soaked patches", "hi": "बड़े गहरे, पानी से भीगे जैसे धब्बे", "mr": "मोठे गडद, पाणी शोषल्यासारखे चट्टे"},
+    "signs": {
+      "en": ["Dark, water-soaked patches that spread fast until the whole leaf dies.", "White fuzzy growth on the underside of the leaf in humid weather.", "Fruit gets dark brown patches and rots."],
+      "hi": ["गहरे, पानी से भीगे जैसे धब्बे जो तेज़ी से फैलते हैं और पूरी पत्ती सूख जाती है।", "नमी वाले मौसम में पत्ती के नीचे सफ़ेद रुई जैसी परत।", "फल पर गहरे भूरे धब्बे पड़ते हैं और वह सड़ जाता है।"],
+      "mr": ["गडद, पाणी शोषल्यासारखे चट्टे जे वेगाने पसरतात आणि संपूर्ण पान वाळते.", "दमट हवामानात पानाच्या खालच्या बाजूला पांढरी कापसासारखी वाढ.", "फळावर गडद तपकिरी चट्टे पडतात आणि ते सडते."]
+    },
+    "act_now": {
+      "en": ["Act within days: it spreads very fast in cool, humid, wet weather.", "Remove and destroy infected leaves or plants away from the field.", "Stop overhead watering and improve drainage."],
+      "hi": ["कुछ ही दिनों में कदम उठाएँ: ठंडे, नम और गीले मौसम में यह बहुत तेज़ी से फैलता है।", "संक्रमित पत्तियाँ या पौधे हटाकर खेत से दूर नष्ट करें।", "ऊपर से पानी देना बंद करें और जल निकासी सुधारें।"],
+      "mr": ["काही दिवसांतच उपाय करा: थंड, दमट आणि ओल्या हवामानात हा फार वेगाने पसरतो.", "बाधित पाने किंवा रोपे काढून शेतापासून दूर नष्ट करा.", "वरून पाणी देणे थांबवा आणि पाण्याचा निचरा सुधारा."]
+    },
+    "sprays": [
+      {"product": "Cyazofamid 34.5% SC", "dose": {"en": "80 ml/acre", "hi": "80 मि.ली./एकड़", "mr": "80 मि.लि./एकर"}, "source": "tnau_lb"},
+      {"product": "Mancozeb 35% SC", "dose": {"en": "1000 g/acre", "hi": "1000 ग्राम/एकड़", "mr": "1000 ग्रॅम/एकर"}, "source": "tnau_lb"},
+      {"product": "Azoxystrobin 23% SC", "dose": {"en": "200 ml/acre", "hi": "200 मि.ली./एकड़", "mr": "200 मि.लि./एकर"}, "source": "tnau_lb"}
+    ],
+    "prevent": {
+      "en": ["Ensure good drainage and rotate crops.", "Apply Trichoderma asperellum to the soil at 1 kg/acre.", "Remove volunteer tomato and potato plants and nightshade weeds near the field."],
+      "hi": ["अच्छी जल निकासी रखें और फसल चक्र अपनाएँ।", "मिट्टी में ट्राइकोडर्मा एस्पेरेलम 1 कि.ग्रा./एकड़ डालें।", "खेत के पास अपने आप उगे टमाटर और आलू के पौधे और मकोय जैसे खरपतवार हटाएँ।"],
+      "mr": ["पाण्याचा निचरा चांगला ठेवा आणि पीक फेरपालट करा.", "जमिनीत ट्रायकोडर्मा ॲस्पेरेलम 1 किलो/एकर द्या.", "शेताजवळ आपोआप उगवलेली टोमॅटो व बटाट्याची रोपे आणि कामुनीसारखी तणे काढून टाका."]
+    },
+    "expert": {
+      "en": "Immediately if several plants are affected: late blight spreads to neighbouring fields.",
+      "hi": "कई पौधे प्रभावित हों तो तुरंत: पछेती झुलसा पड़ोसी खेतों तक फैलता है।",
+      "mr": "अनेक रोपे बाधित असल्यास लगेच: उशिरा येणारा करपा शेजारच्या शेतांमध्ये पसरतो."
+    },
+    "sources": ["tnau_lb", "ucipm_lb"]
+  },
+  "Spotted Wilt Virus": {
+    "title": {"en": "Spotted wilt (tospovirus)", "hi": "स्पॉटेड विल्ट (टॉस्पो विषाणु)", "mr": "स्पॉटेड विल्ट (टॉस्पो विषाणू)"},
+    "kind": {"en": "Virus disease spread by thrips", "hi": "थ्रिप्स से फैलने वाला विषाणु रोग", "mr": "फुलकिड्यांमुळे (थ्रिप्स) पसरणारा विषाणूजन्य रोग"},
+    "cause": {"en": "Tomato spotted wilt virus / groundnut bud necrosis virus, carried by thrips", "hi": "टोमैटो स्पॉटेड विल्ट वायरस / मूंगफली बड नेक्रोसिस वायरस, जिसे थ्रिप्स फैलाते हैं", "mr": "टोमॅटो स्पॉटेड विल्ट व्हायरस / भुईमूग बड नेक्रोसिस व्हायरस, जो फुलकिडे पसरवतात"},
+    "urgency": "high",
+    "hint": {"en": "Bronze or dead rings and spots", "hi": "कांसे जैसे या सूखे छल्ले और धब्बे", "mr": "कांस्य रंगाची किंवा सुकलेली वर्तुळे व ठिपके"},
+    "signs": {
+      "en": ["Yellow or dead rings and spots on leaves; young leaves turn bronze.", "Growing tips die back and the plant is stunted and wilts.", "Fruit shows yellow rings."],
+      "hi": ["पत्तियों पर पीले या सूखे छल्ले और धब्बे; नई पत्तियाँ कांसे जैसी हो जाती हैं।", "बढ़ती हुई चोटियाँ सूख जाती हैं, पौधा बौना रह जाता है और मुरझाता है।", "फल पर पीले छल्ले दिखते हैं।"],
+      "mr": ["पानांवर पिवळी किंवा सुकलेली वर्तुळे व ठिपके; कोवळी पाने कांस्य रंगाची होतात.", "वाढणारे शेंडे सुकतात, रोप खुरटे राहते आणि कोमेजते.", "फळावर पिवळी वर्तुळे दिसतात."]
+    },
+    "act_now": {
+      "en": ["There is no cure for an infected plant: pull out and destroy infected plants (especially in the first 45 days after planting) so they stop feeding the thrips.", "Check for thrips: tiny insects on young leaves and flowers. Blue sticky traps (4-5 per acre) help you see them."],
+      "hi": ["संक्रमित पौधे का कोई इलाज नहीं है: संक्रमित पौधे उखाड़कर नष्ट करें (खासकर रोपाई के पहले 45 दिनों में), ताकि वे थ्रिप्स के लिए स्रोत न बनें।", "थ्रिप्स की जाँच करें: नई पत्तियों और फूलों पर बहुत छोटे कीट। नीले चिपचिपे ट्रैप (4-5 प्रति एकड़) से वे दिख जाते हैं।"],
+      "mr": ["बाधित रोपावर कोणताही इलाज नाही: बाधित रोपे उपटून नष्ट करा (विशेषतः लागवडीनंतरच्या पहिल्या 45 दिवसांत), म्हणजे ती फुलकिड्यांसाठी स्रोत राहणार नाहीत.", "फुलकिडे तपासा: कोवळ्या पानांवर व फुलांवर अगदी लहान कीटक. निळे चिकट सापळे (4-5 प्रति एकर) लावल्यास ते दिसतात."]
+    },
+    "sprays": [
+      {"product": "Imidacloprid 17.8 SL (against thrips)", "dose": {"en": "250 ml/ha", "hi": "250 मि.ली./हेक्टेयर", "mr": "250 मि.लि./हेक्टर"}, "source": "tnau_swv"},
+      {"product": "Cyantraniliprole 10.26 OD (against thrips)", "dose": {"en": "900 ml/ha", "hi": "900 मि.ली./हेक्टेयर", "mr": "900 मि.लि./हेक्टर"}, "source": "tnau_swv"}
+    ],
+    "prevent": {
+      "en": ["Transplant only healthy seedlings.", "Grow a border of sorghum, maize or bajra around the field as a barrier.", "Conserve natural enemies such as predatory thrips; avoid unnecessary broad-spectrum sprays."],
+      "hi": ["केवल स्वस्थ पौध की ही रोपाई करें।", "खेत के चारों ओर ज्वार, मक्का या बाजरा की बाड़ जैसी कतार लगाएँ।", "शिकारी थ्रिप्स जैसे मित्र कीटों को बचाएँ; बेवजह व्यापक असर वाली दवाओं के छिड़काव से बचें।"],
+      "mr": ["फक्त निरोगी रोपांचीच लागवड करा.", "शेताभोवती अडथळा म्हणून ज्वारी, मका किंवा बाजरीच्या ओळी लावा.", "भक्षक फुलकिड्यांसारखे मित्रकीटक जपा; अनावश्यक व्यापक परिणामाची फवारणी टाळा."]
+    },
+    "expert": {
+      "en": "If more than a few plants show symptoms: the sprays only slow the thrips, they do not cure the plants.",
+      "hi": "अगर कुछ से ज़्यादा पौधों में लक्षण दिखें: दवाएँ सिर्फ़ थ्रिप्स को धीमा करती हैं, पौधों को ठीक नहीं करतीं।",
+      "mr": "काही रोपांपेक्षा जास्त रोपांवर लक्षणे दिसल्यास: फवारणी फक्त फुलकिड्यांना आळा घालते, रोपे बरी करत नाही."
+    },
+    "sources": ["tnau_swv", "niphm"]
+  },
+  "Leaf Miner": {
+    "title": {"en": "Leaf miner", "hi": "पत्ती सुरंगक (लीफ माइनर)", "mr": "नागअळी (लीफ माइनर)"},
+    "kind": {"en": "Insect pest", "hi": "कीट", "mr": "कीड"},
+    "cause": {"en": "Serpentine leaf miner (Liriomyza trifolii), a small fly whose larvae tunnel inside leaves", "hi": "सर्पिल पत्ती सुरंगक (Liriomyza trifolii), एक छोटी मक्खी जिसकी इल्लियाँ पत्ती के अंदर सुरंग बनाती हैं", "mr": "नागअळी (Liriomyza trifolii), एक लहान माशी जिच्या अळ्या पानाच्या आत पोखरून रेषा तयार करतात"},
+    "urgency": "medium",
+    "hint": {"en": "Pale winding tunnels inside the leaf", "hi": "पत्ती के अंदर हल्की टेढ़ी-मेढ़ी सुरंगें", "mr": "पानाच्या आत फिकट नागमोडी रेषा"},
+    "signs": {
+      "en": ["Pale, winding tunnels (mines) inside the leaf.", "Heavily mined leaves dry up and drop."],
+      "hi": ["पत्ती के अंदर हल्की, टेढ़ी-मेढ़ी सुरंगें।", "ज़्यादा सुरंगों वाली पत्तियाँ सूखकर गिर जाती हैं।"],
+      "mr": ["पानाच्या आत फिकट, नागमोडी पोखरलेल्या रेषा.", "जास्त पोखरलेली पाने सुकून गळून पडतात."]
+    },
+    "act_now": {
+      "en": ["Collect and destroy mined leaves.", "Put up yellow sticky traps, about 10 per acre, to catch the adult flies."],
+      "hi": ["सुरंग वाली पत्तियाँ इकट्ठा करके नष्ट करें।", "वयस्क मक्खियों को पकड़ने के लिए पीले चिपचिपे ट्रैप लगाएँ, लगभग 10 प्रति एकड़।"],
+      "mr": ["पोखरलेली पाने गोळा करून नष्ट करा.", "प्रौढ माश्या पकडण्यासाठी पिवळे चिकट सापळे लावा, साधारण 10 प्रति एकर."]
+    },
+    "sprays": [
+      {"product": "Neem seed kernel extract (NSKE)", "dose": {"en": "5%", "hi": "5%", "mr": "5% (निंबोळी अर्क)"}, "source": "tnau_lm"},
+      {"product": "Cyantraniliprole 10.26 OD", "dose": {"en": "1.8 ml per litre of water", "hi": "1.8 मि.ली. प्रति लीटर पानी", "mr": "1.8 मि.लि. प्रति लिटर पाणी"}, "source": "tnau_lm"}
+    ],
+    "prevent": {
+      "en": ["Avoid giving too much nitrogen fertiliser: soft, lush leaves attract leaf miners.", "Intercropping with beans reduces attack.", "Protect the tiny wasps that kill leaf miners: avoid broad-spectrum sprays when few mines are present."],
+      "hi": ["ज़्यादा नाइट्रोजन खाद न दें: मुलायम, हरी-भरी पत्तियाँ पत्ती सुरंगक को आकर्षित करती हैं।", "बीन्स (सेम) के साथ अंतरफसल लेने से हमला कम होता है।", "पत्ती सुरंगक को मारने वाली छोटी ततैयों को बचाएँ: कम सुरंगें हों तो व्यापक असर वाली दवाओं से बचें।"],
+      "mr": ["जास्त नत्रयुक्त खत देऊ नका: मऊ, लुसलुशीत पाने नागअळीला आकर्षित करतात.", "घेवडा/शेंगावर्गीय पिकाचे आंतरपीक घेतल्यास प्रादुर्भाव कमी होतो.", "नागअळी नष्ट करणाऱ्या लहान गांधीलमाश्या जपा: पोखर कमी असताना व्यापक परिणामाची फवारणी टाळा."]
+    },
+    "expert": {
+      "en": "If most leaves on many plants are mined, or new mines keep appearing after two weeks.",
+      "hi": "अगर कई पौधों की ज़्यादातर पत्तियों में सुरंगें हों, या दो हफ़्ते बाद भी नई सुरंगें बनती रहें।",
+      "mr": "अनेक रोपांची बहुतेक पाने पोखरलेली असल्यास, किंवा दोन आठवड्यांनंतरही नवीन पोखर दिसत राहिल्यास."
+    },
+    "sources": ["tnau_lm", "niphm"]
+  },
+  "Magnesium Deficiency": {
+    "title": {"en": "Magnesium deficiency", "hi": "मैग्नीशियम की कमी", "mr": "मॅग्नेशियमची कमतरता"},
+    "kind": {"en": "Nutrient deficiency", "hi": "पोषक तत्व की कमी", "mr": "अन्नद्रव्याची कमतरता"},
+    "cause": {"en": "Not enough magnesium reaching the plant", "hi": "पौधे को पर्याप्त मैग्नीशियम नहीं मिल रहा", "mr": "रोपाला पुरेसे मॅग्नेशियम मिळत नाही"},
+    "urgency": "low",
+    "hint": {"en": "Yellow between the veins, veins stay green", "hi": "नसों के बीच पीलापन, नसें हरी रहती हैं", "mr": "शिरांच्या मधे पिवळेपणा, शिरा हिरव्याच राहतात"},
+    "signs": {
+      "en": ["Yellowing between the veins while the veins stay green, starting on older leaves.", "Yellowing moves from the bottom of the plant upwards; affected parts later turn brown."],
+      "hi": ["नसों के बीच पीलापन जबकि नसें हरी रहती हैं, पुरानी पत्तियों से शुरू होकर।", "पीलापन पौधे के नीचे से ऊपर की ओर बढ़ता है; प्रभावित हिस्से बाद में भूरे हो जाते हैं।"],
+      "mr": ["शिरा हिरव्या राहून शिरांच्या मधला भाग पिवळा होतो, जुन्या पानांपासून सुरुवात.", "पिवळेपणा रोपाच्या खालून वर पसरतो; बाधित भाग नंतर तपकिरी होतात."]
+    },
+    "act_now": {
+      "en": ["Spray magnesium sulphate (MgSO4) at 2% on the leaves, twice, two weeks apart."],
+      "hi": ["पत्तियों पर 2% मैग्नीशियम सल्फ़ेट (MgSO4) का छिड़काव करें, दो बार, दो हफ़्ते के अंतर पर।"],
+      "mr": ["पानांवर 2% मॅग्नेशियम सल्फेट (MgSO4) ची फवारणी करा, दोन वेळा, दोन आठवड्यांच्या अंतराने."]
+    },
+    "sprays": [
+      {"product": "Magnesium sulphate (foliar)", "dose": {"en": "2%, twice at a 2-week interval", "hi": "2%, दो बार, 2 हफ़्ते के अंतर पर", "mr": "2%, दोन वेळा, 2 आठवड्यांच्या अंतराने"}, "source": "tnau_mg"}
+    ],
+    "prevent": {
+      "en": ["Get the soil tested.", "Soil application: dolomite at 2 t/ha or magnesium sulphate at 20 kg/ha."],
+      "hi": ["मिट्टी की जाँच करवाएँ।", "मिट्टी में: डोलोमाइट 2 टन/हेक्टेयर या मैग्नीशियम सल्फ़ेट 20 कि.ग्रा./हेक्टेयर।"],
+      "mr": ["माती परीक्षण करून घ्या.", "जमिनीत: डोलोमाईट 2 टन/हेक्टर किंवा मॅग्नेशियम सल्फेट 20 किलो/हेक्टर."]
+    },
+    "expert": {
+      "en": "If new leaves also turn yellow after the sprays: the cause may be another nutrient or a disease.",
+      "hi": "अगर छिड़काव के बाद नई पत्तियाँ भी पीली हों: कारण कोई और पोषक तत्व या रोग हो सकता है।",
+      "mr": "फवारणीनंतरही नवीन पाने पिवळी पडल्यास: कारण दुसरे अन्नद्रव्य किंवा रोग असू शकतो."
+    },
+    "sources": ["tnau_mg"]
+  },
+  "Nitrogen Deficiency": {
+    "title": {"en": "Nitrogen deficiency", "hi": "नाइट्रोजन की कमी", "mr": "नत्राची (नायट्रोजन) कमतरता"},
+    "kind": {"en": "Nutrient deficiency", "hi": "पोषक तत्व की कमी", "mr": "अन्नद्रव्याची कमतरता"},
+    "cause": {"en": "Not enough nitrogen for the plant", "hi": "पौधे के लिए पर्याप्त नाइट्रोजन नहीं", "mr": "रोपासाठी पुरेसे नत्र नाही"},
+    "urgency": "low",
+    "hint": {"en": "Whole older leaf turns pale yellow-green", "hi": "पुरानी पत्ती पूरी हल्की पीली-हरी", "mr": "जुने पान संपूर्ण फिकट पिवळसर-हिरवे"},
+    "signs": {
+      "en": ["Older leaves turn yellowish green first; in severe cases the whole plant is pale.", "Thin, weak growth; small leaflets, sometimes with pinkish veins underneath.", "Flower buds yellow and drop; fruits stay small."],
+      "hi": ["पहले पुरानी पत्तियाँ पीली-हरी होती हैं; ज़्यादा कमी में पूरा पौधा फीका पड़ जाता है।", "पतली, कमज़ोर बढ़वार; छोटी पत्तियाँ, कभी-कभी नीचे गुलाबी नसें।", "फूलों की कलियाँ पीली होकर गिरती हैं; फल छोटे रहते हैं।"],
+      "mr": ["आधी जुनी पाने पिवळसर-हिरवी होतात; जास्त कमतरतेत संपूर्ण रोप फिकट पडते.", "बारीक, कमकुवत वाढ; लहान पाने, कधी कधी खालच्या बाजूला गुलाबी शिरा.", "फुलांच्या कळ्या पिवळ्या होऊन गळतात; फळे लहान राहतात."]
+    },
+    "act_now": {
+      "en": ["Spray urea at 1% on the leaves, twice, one week apart."],
+      "hi": ["पत्तियों पर 1% यूरिया का छिड़काव करें, दो बार, एक हफ़्ते के अंतर पर।"],
+      "mr": ["पानांवर 1% युरियाची फवारणी करा, दोन वेळा, एका आठवड्याच्या अंतराने."]
+    },
+    "sprays": [
+      {"product": "Urea (foliar)", "dose": {"en": "1%, twice at a 1-week interval", "hi": "1%, दो बार, 1 हफ़्ते के अंतर पर", "mr": "1%, दोन वेळा, 1 आठवड्याच्या अंतराने"}, "source": "tnau_n"}
+    ],
+    "prevent": {
+      "en": ["Get the soil tested and apply nitrogen fertiliser in split doses as recommended for your area.", "Do not overdo it: too much nitrogen attracts leaf miners."],
+      "hi": ["मिट्टी की जाँच करवाएँ और अपने क्षेत्र की सिफ़ारिश के अनुसार नाइट्रोजन खाद किस्तों में दें।", "ज़्यादा न दें: ज़्यादा नाइट्रोजन से पत्ती सुरंगक आकर्षित होते हैं।"],
+      "mr": ["माती परीक्षण करून घ्या आणि तुमच्या भागासाठी शिफारस केल्याप्रमाणे नत्रयुक्त खत हप्त्यांमध्ये द्या.", "जास्त देऊ नका: जास्त नत्रामुळे नागअळी आकर्षित होते."]
+    },
+    "expert": {
+      "en": "If the plant stays pale after feeding: check roots, waterlogging and other nutrients.",
+      "hi": "अगर खाद देने के बाद भी पौधा फीका रहे: जड़ें, जलभराव और दूसरे पोषक तत्व जाँचें।",
+      "mr": "खत दिल्यानंतरही रोप फिकट राहिल्यास: मुळे, पाणी साचणे आणि इतर अन्नद्रव्ये तपासा."
+    },
+    "sources": ["tnau_n", "niphm"]
+  },
+  "Healthy": {
+    "title": {"en": "Looks healthy", "hi": "स्वस्थ दिखती है", "mr": "निरोगी दिसते"},
+    "kind": {"en": "No problem found", "hi": "कोई समस्या नहीं मिली", "mr": "कोणतीही समस्या आढळली नाही"},
+    "cause": {"en": "", "hi": "", "mr": ""},
+    "urgency": "none",
+    "hint": {"en": "Even green, no spots or tunnels", "hi": "एक-सा हरा, कोई धब्बा या सुरंग नहीं", "mr": "सगळीकडे सारखे हिरवे, ठिपके किंवा पोखर नाही"},
+    "signs": {
+      "en": ["No spots, mines or unusual yellowing found on this leaf."],
+      "hi": ["इस पत्ती पर कोई धब्बा, सुरंग या असामान्य पीलापन नहीं मिला।"],
+      "mr": ["या पानावर ठिपके, पोखर किंवा असामान्य पिवळेपणा आढळला नाही."]
+    },
+    "act_now": {
+      "en": ["Nothing to do for this leaf. Keep checking the field at least once a week."],
+      "hi": ["इस पत्ती के लिए कुछ करने की ज़रूरत नहीं। हफ़्ते में कम से कम एक बार खेत देखते रहें।"],
+      "mr": ["या पानासाठी काही करण्याची गरज नाही. आठवड्यातून किमान एकदा शेत तपासत राहा."]
+    },
+    "sprays": [],
+    "prevent": {
+      "en": ["Yellow sticky traps (about 10 per acre) to watch for leaf miners; blue traps (4-5 per acre) for thrips.", "Avoid excess nitrogen and overhead watering.", "Remove weeds and volunteer tomato plants; rotate crops each season."],
+      "hi": ["पत्ती सुरंगक पर नज़र के लिए पीले चिपचिपे ट्रैप (लगभग 10 प्रति एकड़); थ्रिप्स के लिए नीले ट्रैप (4-5 प्रति एकड़)।", "ज़्यादा नाइट्रोजन और ऊपर से पानी देने से बचें।", "खरपतवार और अपने आप उगे टमाटर के पौधे हटाएँ; हर मौसम फसल चक्र अपनाएँ।"],
+      "mr": ["नागअळीवर लक्ष ठेवण्यासाठी पिवळे चिकट सापळे (साधारण 10 प्रति एकर); फुलकिड्यांसाठी निळे सापळे (4-5 प्रति एकर).", "जास्त नत्र आणि वरून पाणी देणे टाळा.", "तणे आणि आपोआप उगवलेली टोमॅटोची रोपे काढा; दर हंगामात पीक फेरपालट करा."]
+    },
+    "expert": {
+      "en": "If other plants look different from this one, photograph those too.",
+      "hi": "अगर दूसरे पौधे इससे अलग दिखें, तो उनकी भी फ़ोटो लें।",
+      "mr": "इतर रोपे यापेक्षा वेगळी दिसत असल्यास, त्यांचाही फोटो घ्या."
+    },
+    "sources": ["niphm"]
+  }
+}

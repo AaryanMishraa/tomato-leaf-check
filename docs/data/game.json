@@ -1,0 +1,324 @@
+{
+"lab": [
+{
+"file": "img/game/lab-early-blight-1.jpg",
+"label": "Early_blight"
+},
+{
+"file": "img/game/lab-early-blight-2.jpg",
+"label": "Early_blight"
+},
+{
+"file": "img/game/lab-early-blight-3.jpg",
+"label": "Early_blight"
+},
+{
+"file": "img/game/lab-early-blight-4.jpg",
+"label": "Early_blight"
+},
+{
+"file": "img/game/lab-early-blight-5.jpg",
+"label": "Early_blight"
+},
+{
+"file": "img/game/lab-early-blight-6.jpg",
+"label": "Early_blight"
+},
+{
+"file": "img/game/lab-early-blight-7.jpg",
+"label": "Early_blight"
+},
+{
+"file": "img/game/lab-early-blight-8.jpg",
+"label": "Early_blight"
+},
+{
+"file": "img/game/lab-healthy-1.jpg",
+"label": "Healthy"
+},
+{
+"file": "img/game/lab-healthy-2.jpg",
+"label": "Healthy"
+},
+{
+"file": "img/game/lab-healthy-3.jpg",
+"label": "Healthy"
+},
+{
+"file": "img/game/lab-healthy-4.jpg",
+"label": "Healthy"
+},
+{
+"file": "img/game/lab-healthy-5.jpg",
+"label": "Healthy"
+},
+{
+"file": "img/game/lab-healthy-6.jpg",
+"label": "Healthy"
+},
+{
+"file": "img/game/lab-healthy-7.jpg",
+"label": "Healthy"
+},
+{
+"file": "img/game/lab-healthy-8.jpg",
+"label": "Healthy"
+},
+{
+"file": "img/game/lab-late-blight-1.jpg",
+"label": "Late_blight"
+},
+{
+"file": "img/game/lab-late-blight-2.jpg",
+"label": "Late_blight"
+},
+{
+"file": "img/game/lab-late-blight-3.jpg",
+"label": "Late_blight"
+},
+{
+"file": "img/game/lab-late-blight-4.jpg",
+"label": "Late_blight"
+},
+{
+"file": "img/game/lab-late-blight-5.jpg",
+"label": "Late_blight"
+},
+{
+"file": "img/game/lab-late-blight-6.jpg",
+"label": "Late_blight"
+},
+{
+"file": "img/game/lab-late-blight-7.jpg",
+"label": "Late_blight"
+},
+{
+"file": "img/game/lab-late-blight-8.jpg",
+"label": "Late_blight"
+},
+{
+"file": "img/game/lab-leaf-miner-1.jpg",
+"label": "Leaf Miner"
+},
+{
+"file": "img/game/lab-leaf-miner-2.jpg",
+"label": "Leaf Miner"
+},
+{
+"file": "img/game/lab-leaf-miner-3.jpg",
+"label": "Leaf Miner"
+},
+{
+"file": "img/game/lab-leaf-miner-4.jpg",
+"label": "Leaf Miner"
+},
+{
+"file": "img/game/lab-leaf-miner-5.jpg",
+"label": "Leaf Miner"
+},
+{
+"file": "img/game/lab-leaf-miner-6.jpg",
+"label": "Leaf Miner"
+},
+{
+"file": "img/game/lab-leaf-miner-7.jpg",
+"label": "Leaf Miner"
+},
+{
+"file": "img/game/lab-leaf-miner-8.jpg",
+"label": "Leaf Miner"
+},
+{
+"file": "img/game/lab-magnesium-1.jpg",
+"label": "Magnesium Deficiency"
+},
+{
+"file": "img/game/lab-magnesium-2.jpg",
+"label": "Magnesium Deficiency"
+},
+{
+"file": "img/game/lab-magnesium-3.jpg",
+"label": "Magnesium Deficiency"
+},
+{
+"file": "img/game/lab-magnesium-4.jpg",
+"label": "Magnesium Deficiency"
+},
+{
+"file": "img/game/lab-magnesium-5.jpg",
+"label": "Magnesium Deficiency"
+},
+{
+"file": "img/game/lab-magnesium-6.jpg",
+"label": "Magnesium Deficiency"
+},
+{
+"file": "img/game/lab-magnesium-7.jpg",
+"label": "Magnesium Deficiency"
+},
+{
+"file": "img/game/lab-magnesium-8.jpg",
+"label": "Magnesium Deficiency"
+},
+{
+"file": "img/game/lab-nitrogen-1.jpg",
+"label": "Nitrogen Deficiency"
+},
+{
+"file": "img/game/lab-nitrogen-2.jpg",
+"label": "Nitrogen Deficiency"
+},
+{
+"file": "img/game/lab-nitrogen-3.jpg",
+"label": "Nitrogen Deficiency"
+},
+{
+"file": "img/game/lab-nitrogen-4.jpg",
+"label": "Nitrogen Deficiency"
+},
+{
+"file": "img/game/lab-nitrogen-5.jpg",
+"label": "Nitrogen Deficiency"
+},
+{
+"file": "img/game/lab-nitrogen-6.jpg",
+"label": "Nitrogen Deficiency"
+},
+{
+"file": "img/game/lab-spotted-wilt-1.jpg",
+"label": "Spotted Wilt Virus"
+},
+{
+"file": "img/game/lab-spotted-wilt-2.jpg",
+"label": "Spotted Wilt Virus"
+},
+{
+"file": "img/game/lab-spotted-wilt-3.jpg",
+"label": "Spotted Wilt Virus"
+},
+{
+"file": "img/game/lab-spotted-wilt-4.jpg",
+"label": "Spotted Wilt Virus"
+},
+{
+"file": "img/game/lab-spotted-wilt-5.jpg",
+"label": "Spotted Wilt Virus"
+},
+{
+"file": "img/game/lab-spotted-wilt-6.jpg",
+"label": "Spotted Wilt Virus"
+},
+{
+"file": "img/game/lab-spotted-wilt-7.jpg",
+"label": "Spotted Wilt Virus"
+},
+{
+"file": "img/game/lab-spotted-wilt-8.jpg",
+"label": "Spotted Wilt Virus"
+}
+],
+"field": [
+{
+"file": "img/game/field-early-blight-1.jpg",
+"label": "Early_blight"
+},
+{
+"file": "img/game/field-early-blight-2.jpg",
+"label": "Early_blight"
+},
+{
+"file": "img/game/field-early-blight-3.jpg",
+"label": "Early_blight"
+},
+{
+"file": "img/game/field-early-blight-4.jpg",
+"label": "Early_blight"
+},
+{
+"file": "img/game/field-early-blight-5.jpg",
+"label": "Early_blight"
+},
+{
+"file": "img/game/field-healthy-1.jpg",
+"label": "Healthy"
+},
+{
+"file": "img/game/field-healthy-2.jpg",
+"label": "Healthy"
+},
+{
+"file": "img/game/field-healthy-3.jpg",
+"label": "Healthy"
+},
+{
+"file": "img/game/field-healthy-4.jpg",
+"label": "Healthy"
+},
+{
+"file": "img/game/field-healthy-5.jpg",
+"label": "Healthy"
+},
+{
+"file": "img/game/field-late-blight-1.jpg",
+"label": "Late_blight"
+},
+{
+"file": "img/game/field-late-blight-2.jpg",
+"label": "Late_blight"
+},
+{
+"file": "img/game/field-late-blight-3.jpg",
+"label": "Late_blight"
+},
+{
+"file": "img/game/field-late-blight-4.jpg",
+"label": "Late_blight"
+},
+{
+"file": "img/game/field-late-blight-5.jpg",
+"label": "Late_blight"
+}
+],
+"samples": [
+{
+"file": "img/samples/early-blight.jpg",
+"label": "Early_blight",
+"source": "Tomato-Village test set"
+},
+{
+"file": "img/samples/healthy.jpg",
+"label": "Healthy",
+"source": "Tomato-Village test set"
+},
+{
+"file": "img/samples/late-blight.jpg",
+"label": "Late_blight",
+"source": "Tomato-Village test set"
+},
+{
+"file": "img/samples/leaf-miner.jpg",
+"label": "Leaf Miner",
+"source": "Tomato-Village test set"
+},
+{
+"file": "img/samples/magnesium.jpg",
+"label": "Magnesium Deficiency",
+"source": "Tomato-Village test set"
+},
+{
+"file": "img/samples/nitrogen.jpg",
+"label": "Nitrogen Deficiency",
+"source": "Tomato-Village test set"
+},
+{
+"file": "img/samples/spotted-wilt.jpg",
+"label": "Spotted Wilt Virus",
+"source": "Tomato-Village test set"
+},
+{
+"file": "img/samples/field-early-blight.jpg",
+"label": "Early_blight",
+"source": "PlantDoc (internet field photo)"
+}
+]
+}

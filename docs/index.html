@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Tomato Leaf Check</title>
+  <meta name="description" content="Checks a tomato leaf photo for 7 problems on your phone, offline, and says what to do. Includes a game: can you beat the AI?">
+  <meta name="theme-color" content="#2E6B3B" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#101A13" media="(prefers-color-scheme: dark)">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon-192.png" type="image/png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <header class="bar">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M5 27C9 15 17 7 28 4c-1 11-8 20-20 23" fill="currentColor"/><path d="M6 26 L22 10" stroke="var(--paper)" stroke-width="1.6" stroke-linecap="round"/><circle cx="25.5" cy="25" r="4" fill="var(--tomato)"/></svg>
+      <span data-i18n="app_name">Tomato Leaf Check</span>
+    </div>
+    <div class="lang" role="group" aria-label="Language" id="lang"></div>
+  </header>
+
+  <div class="status" id="status" role="status" aria-live="polite"></div>
+
+  <main id="main">
+    <!-- Check a leaf -->
+    <section class="view" id="view-check" aria-labelledby="tab-check">
+      <div id="check-start">
+        <div class="mount">
+          <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
+          <svg class="mount-leaf" viewBox="0 0 120 120" aria-hidden="true">
+            <path d="M20 100 C 30 60, 60 28, 104 16 C 98 60, 70 92, 24 100 Z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/>
+            <path d="M22 98 L 86 36 M48 72 L 44 52 M60 60 L 58 40 M48 72 L 68 74 M62 58 L 82 60 M74 46 L 72 30 M74 46 L 92 46" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+          <h1 class="h1" data-i18n="check_title">Photograph one tomato leaf</h1>
+          <p class="lead" data-i18n="check_lead"></p>
+          <div class="actions">
+            <label class="btn primary" for="in-camera"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="13" r="3.6" fill="none" stroke="currentColor" stroke-width="1.8"/></svg><span data-i18n="take_photo">Take a photo</span></label>
+            <label class="btn" for="in-gallery"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="14" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M4 16l5-5 4 4 2-2 5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg><span data-i18n="choose_photo">Choose from gallery</span></label>
+            <input type="file" id="in-camera" accept="image/*" capture="environment" hidden>
+            <input type="file" id="in-gallery" accept="image/*" hidden>
+          </div>
+        </div>
+        <h2 class="h3" data-i18n="samples_title">Or try a sample leaf</h2>
+        <div class="samples" id="samples"></div>
+      </div>
+      <div id="check-result" hidden></div>
+    </section>
+
+    <!-- Beat the AI -->
+    <section class="view" id="view-game" aria-labelledby="tab-game" hidden></section>
+
+    <!-- How it works -->
+    <section class="view" id="view-about" aria-labelledby="tab-about" hidden></section>
+  </main>
+
+  <nav class="tabs" role="tablist" aria-label="Sections">
+    <button role="tab" id="tab-check" aria-controls="view-check" aria-selected="true" data-view="check">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20C7 11 12 6 20 4c-.5 8-5 14-14 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M6 19 16 9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      <span data-i18n="tab_check">Check a leaf</span>
+    </button>
+    <button role="tab" id="tab-game" aria-controls="view-game" aria-selected="false" data-view="game">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10v3a5 5 0 0 1-10 0z M12 12v4 M8 20h8 M9 16h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/><path d="M7 5H4c0 3 1.5 4.5 3.5 4.8 M17 5h3c0 3-1.5 4.5-3.5 4.8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      <span data-i18n="tab_game">Beat the AI</span>
+    </button>
+    <button role="tab" id="tab-about" aria-controls="view-about" aria-selected="false" data-view="about">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 11v6 M12 7.5v.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      <span data-i18n="tab_about">How it works</span>
+    </button>
+  </nav>
+
+  <script src="vendor/tf.min.js"></script>
+  <script src="vendor/tf-backend-wasm.min.js"></script>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
