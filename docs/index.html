@@ -1,79 +1,1042 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Tomato Leaf Check</title>
-  <meta name="description" content="Checks a tomato leaf photo for 7 problems on your phone, offline, and says what to do. Includes a game: can you beat the AI?">
-  <meta name="theme-color" content="#2E6B3B" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#101A13" media="(prefers-color-scheme: dark)">
-  <link rel="manifest" href="manifest.webmanifest">
-  <link rel="icon" href="icons/icon-192.png" type="image/png">
-  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="mobile-web-app-capable" content="yes">
-  <link rel="stylesheet" href="css/app.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tomato Leaf Check</title>
+<meta name="description" content="Checks a tomato leaf photo for 7 problems on your phone, offline, and says what to do. Includes a game: can you beat the AI?">
+<meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121915" media="(prefers-color-scheme: dark)">
+<meta name="color-scheme" content="light dark">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Leaf Check">
+<!--
+  Tomato Leaf Check, version 2 (27 Oct 2026). Group 23, B.Tech AI/ML, Universal AI University.
+  This one file holds the whole interface: the styles, the screens and the game.
+  It reuses the other files in this folder unchanged: js/model.js (on-phone AI), js/i18n.js (text),
+  data/ (advice, results, photos), model/ (MobileNetV2), vendor/ (TensorFlow.js), fonts/, icons/, sw.js.
+  css/app.css and js/app.js were used by version 1 and are no longer loaded.
+-->
+<style>
+/* Devanagari for Hindi and Marathi, bundled so it works offline */
+@font-face { font-family: 'Noto Sans Devanagari'; src: url(fonts/noto-sans-devanagari-devanagari-400-normal.woff2) format('woff2'); font-weight: 400; font-display: swap; unicode-range: U+0900-097F, U+1CD0-1CF9, U+200C-200D, U+20A8, U+20B9, U+25CC, U+A830-A839, U+A8E0-A8FF; }
+@font-face { font-family: 'Noto Sans Devanagari'; src: url(fonts/noto-sans-devanagari-devanagari-700-normal.woff2) format('woff2'); font-weight: 600 700; font-display: swap; unicode-range: U+0900-097F, U+1CD0-1CF9, U+200C-200D, U+20A8, U+20B9, U+25CC, U+A830-A839, U+A8E0-A8FF; }
+
+:root {
+  --canvas: #F2F4F3;
+  --surface: #FFFFFF;
+  --fill: #EEF1EF;          /* quiet fills: tracks, chips, photo backdrop */
+  --line: #DFE4E1;
+  --ink: #0E1A13;
+  --ink-2: #57635C;
+  --ink-3: #87918B;
+  --leaf: #1D6B42;          /* brand */
+  --leaf-press: #165536;
+  --leaf-soft: #E2F0E7;
+  --leaf-ink: #145232;
+  --tomato: #C8372D;        /* act now / wrong */
+  --tomato-soft: #FBE8E5;
+  --amber: #9A5800;         /* not sure / medium */
+  --amber-soft: #FBEFD9;
+  --on-leaf: #FFFFFF;
+  --font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, 'Noto Sans Devanagari', 'Helvetica Neue', Arial, sans-serif;
+  --r-lg: 20px; --r-md: 14px; --r-sm: 10px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --canvas: #0A0F0C; --surface: #121915; --fill: #1A231E; --line: #243029;
+    --ink: #E8EEEA; --ink-2: #9EAAA3; --ink-3: #6E7A73;
+    --leaf: #57C08A; --leaf-press: #45A876; --leaf-soft: #16301F; --leaf-ink: #8FDDB2;
+    --tomato: #FF7A6C; --tomato-soft: #3A1A16; --amber: #F2B048; --amber-soft: #33260F;
+    --on-leaf: #06130B;
+    color-scheme: dark;
+  }
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+/* The page itself never scrolls or bounces. Only the middle area scrolls, so the
+   top bar and the tab bar stay put on iPhone and Android. */
+html, body { height: 100%; margin: 0; overflow: hidden; overscroll-behavior: none; background: var(--canvas); }
+body { font: 400 16px/1.5 var(--font); color: var(--ink); -webkit-font-smoothing: antialiased; -webkit-text-size-adjust: 100%; }
+html[lang="hi"] body, html[lang="mr"] body { line-height: 1.65; }
+button, input, label { font: inherit; color: inherit; }
+button { cursor: pointer; }
+img, canvas, svg { display: block; max-width: 100%; }
+[hidden] { display: none !important; }
+:focus-visible { outline: 3px solid var(--leaf); outline-offset: 2px; border-radius: 8px; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ---------- shell ---------- */
+.app { position: fixed; inset: 0; display: flex; flex-direction: column; background: var(--canvas); overflow: hidden; }
+.topbar {
+  flex: none; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: calc(env(safe-area-inset-top) + 10px) 16px 10px; background: var(--surface); border-bottom: 1px solid var(--line);
+}
+.brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.logo { width: 32px; height: 32px; border-radius: 9px; background: #1D6B42; display: grid; place-items: center; flex: none; }
+.logo svg { width: 22px; height: 22px; }
+.brand-name { font-size: 17px; font-weight: 700; letter-spacing: -.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lang { display: flex; background: var(--fill); border-radius: 999px; padding: 3px; flex: none; }
+.lang button { border: 0; background: none; border-radius: 999px; padding: 5px 10px; font-size: 13px; font-weight: 600; color: var(--ink-2); min-width: 38px; }
+.lang button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,.12); }
+
+.scroller { flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden; overscroll-behavior-y: contain; -webkit-overflow-scrolling: touch; }
+.view { max-width: 560px; margin: 0 auto; padding: 16px 16px 32px; }
+
+.tabbar {
+  flex: none; display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px;
+  padding: 6px 8px calc(6px + env(safe-area-inset-bottom)); background: var(--surface); border-top: 1px solid var(--line);
+}
+.tabbar button { border: 0; background: none; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 4px 0 2px; color: var(--ink-3); font-size: 11.5px; font-weight: 600; line-height: 1.2; }
+.tabbar .pill { width: 56px; height: 30px; border-radius: 999px; display: grid; place-items: center; transition: background-color .2s ease; }
+.tabbar svg { width: 22px; height: 22px; }
+.tabbar button[aria-selected="true"] { color: var(--leaf-ink); }
+.tabbar button[aria-selected="true"] .pill { background: var(--leaf-soft); color: var(--leaf); }
+
+/* ---------- type ---------- */
+.t-large { font-size: 28px; line-height: 1.18; font-weight: 700; letter-spacing: -.022em; margin: 0 0 8px; }
+.t-title { font-size: 22px; line-height: 1.25; font-weight: 700; letter-spacing: -.015em; margin: 0; }
+.t-head { font-size: 17px; line-height: 1.35; font-weight: 600; margin: 0; }
+.muted { color: var(--ink-2); }
+.small { font-size: 13px; line-height: 1.45; color: var(--ink-2); }
+.label { font-size: 13px; font-weight: 600; color: var(--ink-2); margin: 24px 4px 8px; }
+p { margin: 0 0 10px; }
+ul { margin: 0; padding-left: 20px; }
+li { margin: 6px 0; }
+a { color: var(--leaf); }
+.num { font-variant-numeric: tabular-nums; }
+
+/* ---------- surfaces ---------- */
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 18px; }
+.group { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); overflow: hidden; }
+.row { display: flex; align-items: center; gap: 12px; padding: 13px 16px; }
+.row + .row { border-top: 1px solid var(--line); }
+.row .grow { flex: 1; min-width: 0; }
+.row .val { font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; }
+.row .val.bad { color: var(--tomato); }
+.row.metric { flex-direction: column; align-items: stretch; gap: 2px; }
+.row.metric .grow { font-size: 14px; color: var(--ink-2); }
+.row.metric .val { text-align: left; font-size: 17px; }
+.ico-box { width: 34px; height: 34px; border-radius: 10px; background: var(--leaf-soft); color: var(--leaf); display: grid; place-items: center; flex: none; }
+.ico-box svg { width: 19px; height: 19px; }
+
+/* ---------- buttons and chips ---------- */
+.btn {
+  display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 50px; padding: 12px 18px; width: 100%;
+  border-radius: var(--r-md); border: 1px solid transparent; font-size: 16px; font-weight: 600; text-align: center; text-decoration: none;
+  transition: transform .08s ease, background-color .15s ease;
+}
+.btn:active { transform: scale(.985); }
+.btn svg { width: 20px; height: 20px; flex: none; }
+.btn-primary { background: var(--leaf); color: var(--on-leaf); }
+.btn-primary:active { background: var(--leaf-press); }
+.btn-secondary { background: var(--surface); color: var(--ink); border-color: var(--line); }
+.btn-tonal { background: var(--leaf-soft); color: var(--leaf-ink); }
+.btn[disabled] { opacity: .5; }
+.btn-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+.btn-col { display: grid; gap: 10px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; min-height: 28px; padding: 4px 11px; border-radius: 999px; font-size: 13px; font-weight: 600; background: var(--fill); color: var(--ink-2); }
+.chip i { width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex: none; }
+.chip.ok { background: var(--leaf-soft); color: var(--leaf-ink); }
+.chip.warn { background: var(--amber-soft); color: var(--amber); }
+.chip.bad { background: var(--tomato-soft); color: var(--tomato); }
+.chip.wait i { animation: blink 1.2s ease-in-out infinite; }
+@keyframes blink { 50% { opacity: .25; } }
+
+/* ---------- home ---------- */
+.hero { padding: 22px 18px 18px; }
+.hero .badge { width: 52px; height: 52px; border-radius: 16px; background: var(--leaf-soft); color: var(--leaf); display: grid; place-items: center; margin-bottom: 14px; }
+.hero .badge svg { width: 30px; height: 30px; }
+.hero .lead { color: var(--ink-2); margin: 0 0 18px; max-width: 34em; }
+.status-chips { margin: 14px 2px 0; }
+.samples { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.sample { border: 0; background: none; padding: 0; text-align: left; align-self: start; display: flex; flex-direction: column; }
+.sample img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 12px; background: var(--fill); }
+.sample span { display: block; font-size: 12px; line-height: 1.3; color: var(--ink-2); margin-top: 6px; overflow-wrap: anywhere; }
+.sample:active img { opacity: .8; }
+
+/* ---------- photo with heatmap ---------- */
+.photo { position: relative; background: var(--fill); border-radius: var(--r-lg); overflow: hidden; }
+.photo .stack { position: relative; margin: 0 auto; }
+.photo canvas { width: 100%; height: auto; }
+.photo canvas.heat { position: absolute; inset: 0; opacity: 0; transition: opacity .3s ease; }
+.photo.show-heat canvas.heat { opacity: .5; }
+.photo .toggle {
+  position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%); display: flex; padding: 3px; border-radius: 999px;
+  background: rgba(10, 15, 12, .62); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+}
+.photo .toggle button { border: 0; background: none; color: rgba(255,255,255,.85); font-size: 13px; font-weight: 600; padding: 7px 14px; border-radius: 999px; white-space: nowrap; }
+.photo .toggle button[aria-pressed="true"] { background: #fff; color: #0E1A13; }
+.heat-note { font-size: 13px; color: var(--ink-2); margin: 10px 4px 0; }
+
+/* ---------- result ---------- */
+.subbar {
+  position: sticky; top: 0; z-index: 4; display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  margin: -16px -16px 12px; padding: 8px 8px; background: var(--canvas); background: color-mix(in srgb, var(--canvas) 88%, transparent);
+  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+}
+.link-btn { display: inline-flex; align-items: center; gap: 4px; border: 0; background: none; color: var(--leaf); font-size: 16px; font-weight: 600; padding: 8px; border-radius: 10px; }
+.link-btn svg { width: 20px; height: 20px; }
+.diag { margin-top: 12px; }
+.diag-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 6px; }
+.diag-sub { color: var(--ink-2); margin: 6px 0 0; }
+.diag .chips { margin-top: 14px; }
+.meter { margin-top: 18px; }
+.meter-head { display: flex; justify-content: space-between; align-items: baseline; font-size: 14px; color: var(--ink-2); }
+.meter-head b { font-size: 20px; color: var(--ink); font-weight: 700; font-variant-numeric: tabular-nums; }
+.meter-track { position: relative; height: 10px; border-radius: 999px; background: var(--fill); margin-top: 8px; }
+.meter-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; border-radius: 999px; background: var(--leaf); transition: width .7s cubic-bezier(.2,.7,.2,1); }
+.meter-fill.high { background: var(--tomato); }
+.meter-fill.unsure { background: var(--amber); }
+.meter-tick { position: absolute; top: -5px; bottom: -5px; width: 2px; margin-left: -1px; border-radius: 2px; background: var(--ink); }
+.meter-note { font-size: 12.5px; color: var(--ink-3); margin-top: 8px; }
+
+details.acc + details.acc { border-top: 1px solid var(--line); }
+details.acc > summary { list-style: none; display: flex; align-items: center; gap: 12px; padding: 14px 16px; font-weight: 600; cursor: pointer; }
+details.acc > summary::-webkit-details-marker { display: none; }
+details.acc > summary .grow { flex: 1; }
+details.acc > summary .chev { width: 18px; height: 18px; color: var(--ink-3); transition: transform .2s ease; flex: none; }
+details.acc[open] > summary .chev { transform: rotate(180deg); }
+details.acc .acc-body { padding: 0 16px 16px; }
+.warn-box { background: var(--amber-soft); color: var(--ink); border-radius: var(--r-sm); padding: 10px 12px; font-size: 13.5px; margin-bottom: 12px; }
+table.spray { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+table.spray th { text-align: left; font-size: 12.5px; font-weight: 600; color: var(--ink-2); padding: 6px 8px 6px 0; border-bottom: 1px solid var(--line); }
+table.spray td { padding: 9px 8px 9px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+table.spray tr:last-child td { border-bottom: 0; }
+.sources { font-size: 12.5px; color: var(--ink-3); margin: 10px 4px 0; }
+.sources a { color: var(--ink-2); }
+.bars .bar-row { display: grid; grid-template-columns: 1fr auto; gap: 6px 10px; align-items: center; padding: 11px 16px; font-size: 15px; }
+.bars .bar-row + .bar-row { border-top: 1px solid var(--line); }
+.bars .bar-row .track { grid-column: 1 / -1; height: 6px; background: var(--fill); border-radius: 999px; overflow: hidden; }
+.bars .bar-row .track i { display: block; height: 100%; background: var(--leaf); border-radius: 999px; }
+.bars .bar-row.top { font-weight: 600; }
+.foot { font-size: 12.5px; line-height: 1.5; color: var(--ink-3); margin: 18px 4px 0; }
+.busy { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 64px 0; color: var(--ink-2); }
+.spinner { width: 22px; height: 22px; border-radius: 50%; border: 3px solid var(--leaf-soft); border-top-color: var(--leaf); animation: spin .8s linear infinite; flex: none; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.error { background: var(--tomato-soft); color: var(--tomato); padding: 14px 16px; border-radius: var(--r-md); margin: 12px 0; font-weight: 600; }
+
+/* ---------- game ---------- */
+.score { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 14px 18px; }
+.score .side { display: flex; flex-direction: column; }
+.score .side.ai { align-items: flex-end; }
+.score .who { font-size: 13px; font-weight: 600; color: var(--ink-2); }
+.score .n { font-size: 34px; line-height: 1.05; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
+.score .side.you .n { color: var(--leaf); }
+.score .side.ai .n { color: var(--tomato); }
+.score .vs { font-size: 13px; font-weight: 600; color: var(--ink-3); }
+.bump { animation: bump .45s ease; display: inline-block; }
+@keyframes bump { 40% { transform: scale(1.3); } }
+.progress { display: flex; gap: 4px; margin: 14px 0 0; }
+.progress i { flex: 1; height: 5px; border-radius: 999px; background: var(--fill); }
+.progress i.done.lab { background: var(--leaf); }
+.progress i.done.field { background: var(--amber); }
+.progress i.now { background: var(--ink); }
+.stage-row { display: flex; justify-content: space-between; align-items: center; margin: 16px 2px 10px; }
+.stage-row .t-head { font-size: 15px; }
+.options { display: grid; gap: 8px; margin-top: 4px; }
+.opt { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; padding: 12px 14px; border-radius: var(--r-md); border: 1px solid var(--line); background: var(--surface); }
+.opt .radio { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--ink-3); flex: none; display: grid; place-items: center; }
+.opt .txt { display: flex; flex-direction: column; min-width: 0; }
+.opt .txt b { font-weight: 600; font-size: 15.5px; }
+.opt .txt small { font-size: 13px; color: var(--ink-2); line-height: 1.35; margin-top: 1px; }
+.opt.chosen { border-color: var(--leaf); background: var(--leaf-soft); }
+.opt.chosen .radio { border-color: var(--leaf); }
+.opt.chosen .radio::after { content: ''; width: 10px; height: 10px; border-radius: 50%; background: var(--leaf); }
+.opt[disabled] { cursor: default; }
+.opt[disabled]:not(.chosen) { opacity: .55; }
+.thinking { display: flex; align-items: center; gap: 10px; color: var(--ink-2); font-weight: 600; padding: 4px 2px 12px; }
+.reveal { margin-top: 12px; }
+.verdict { display: flex; gap: 10px; align-items: flex-start; margin-top: 12px; }
+.verdict svg { width: 22px; height: 22px; flex: none; margin-top: 1px; }
+.verdict .ok { color: var(--leaf); }
+.verdict .no { color: var(--tomato); }
+.verdict .note { display: block; font-size: 13px; color: var(--ink-2); }
+.tell { background: var(--fill); border-radius: var(--r-sm); padding: 11px 13px; font-size: 14.5px; margin: 14px 0 16px; }
+.intro-stage { display: flex; gap: 14px; align-items: flex-start; padding: 14px 16px; }
+.intro-stage + .intro-stage { border-top: 1px solid var(--line); }
+.intro-stage .n { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 15px; flex: none; }
+.intro-stage .n.lab { background: var(--leaf-soft); color: var(--leaf-ink); }
+.intro-stage .n.field { background: var(--amber-soft); color: var(--amber); }
+.final { text-align: center; padding: 24px 18px; }
+.final .big { font-size: 56px; line-height: 1; font-weight: 700; letter-spacing: -.03em; margin: 12px 0 6px; font-variant-numeric: tabular-nums; }
+.final .big .y { color: var(--leaf); }
+.final .big .a { color: var(--tomato); }
+.final .big .sep { color: var(--ink-3); font-weight: 400; margin: 0 14px; }
+.final .who-row { display: flex; justify-content: center; gap: 46px; font-size: 13px; font-weight: 600; color: var(--ink-2); }
+.lessons li { margin: 10px 0; }
+
+/* ---------- about ---------- */
+.steps { list-style: none; padding: 0; margin: 0; }
+.steps li { display: flex; gap: 12px; padding: 12px 16px; margin: 0; }
+.steps li + li { border-top: 1px solid var(--line); }
+.steps .n { width: 26px; height: 26px; border-radius: 50%; background: var(--leaf-soft); color: var(--leaf-ink); font-size: 13px; font-weight: 700; display: grid; place-items: center; flex: none; margin-top: 1px; }
+.qr-card { display: flex; gap: 16px; align-items: center; }
+.qr { width: 112px; height: 112px; padding: 8px; background: #fff; border-radius: 12px; flex: none; border: 1px solid var(--line); }
+.qr svg { width: 100%; height: 100%; }
+.qr-link { font-size: 13px; color: var(--ink-2); overflow-wrap: anywhere; margin: 6px 0 12px; }
+.toast { position: fixed; left: 50%; bottom: calc(90px + env(safe-area-inset-bottom)); transform: translate(-50%, 20px); background: var(--ink); color: var(--canvas); padding: 10px 16px; border-radius: 999px; font-size: 14px; font-weight: 600; opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; z-index: 20; }
+.toast.on { opacity: 1; transform: translate(-50%, 0); }
+
+/* ---------- laptop and desktop: show the phone app in a phone frame ---------- */
+.desk { display: none; }
+@media (min-width: 920px) and (min-height: 620px) {
+  html, body { background: #E9EDEA; }
+  .desk {
+    display: flex; flex-direction: column; justify-content: center; position: fixed; top: 0; bottom: 0;
+    left: max(32px, calc(50% - 520px)); width: 400px; color: #0E1A13;
+  }
+  .desk .logo { width: 48px; height: 48px; border-radius: 13px; margin-bottom: 18px; }
+  .desk .logo svg { width: 32px; height: 32px; }
+  .desk h1 { font-size: 34px; line-height: 1.15; letter-spacing: -.025em; margin: 0 0 12px; }
+  .desk p { color: #4C5852; font-size: 16.5px; line-height: 1.55; max-width: 26em; }
+  .desk .qr { width: 168px; height: 168px; margin: 22px 0 10px; border-color: #D5DCD8; }
+  .desk .qr-link { color: #4C5852; font-size: 14px; }
+  .desk .note { margin-top: 18px; padding-top: 16px; border-top: 1px solid #D5DCD8; font-size: 14px; color: #4C5852; }
+  .app {
+    inset: auto; top: 50%; left: calc(max(32px, calc(50% - 520px)) + 480px); width: 390px; height: min(844px, calc(100vh - 48px));
+    transform: translateY(-50%); border-radius: 46px; border: 11px solid #101512; box-shadow: 0 30px 70px -20px rgba(16, 24, 19, .45);
+  }
+  .toast { left: calc(max(32px, calc(50% - 520px)) + 675px); bottom: 80px; }
+}
+@media (min-width: 920px) and (min-height: 620px) and (prefers-color-scheme: dark) {
+  html, body { background: #070A08; }
+  .desk { color: #E8EEEA; }
+  .desk p, .desk .qr-link, .desk .note { color: #9EAAA3; }
+  .desk .note { border-color: #243029; }
+  .app { border-color: #2A332E; }
+}
+@media (max-width: 360px) {
+  .samples { grid-template-columns: repeat(3, 1fr); }
+  .btn-row { grid-template-columns: 1fr; }
+  .brand-name { font-size: 15px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
 </head>
 <body>
-  <header class="bar">
+
+<aside class="desk" aria-label="Open on your phone">
+  <div class="logo"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M6 25C9 15 15 9 26 6c-1 10-7 17-18 19" fill="#fff"/><path d="M7.5 23.5 21 10" stroke="#1D6B42" stroke-width="1.7" stroke-linecap="round"/><circle cx="24.5" cy="24" r="3.6" fill="#E0473B"/></svg></div>
+  <h1 data-i18n="desk_title">This is a phone app</h1>
+  <p data-i18n="desk_body"></p>
+  <div class="qr" id="desk-qr"></div>
+  <div class="qr-link" id="desk-link"></div>
+  <p class="note" data-i18n="desk_note"></p>
+</aside>
+
+<div class="app" id="app">
+  <header class="topbar">
     <div class="brand">
-      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M5 27C9 15 17 7 28 4c-1 11-8 20-20 23" fill="currentColor"/><path d="M6 26 L22 10" stroke="var(--paper)" stroke-width="1.6" stroke-linecap="round"/><circle cx="25.5" cy="25" r="4" fill="var(--tomato)"/></svg>
-      <span data-i18n="app_name">Tomato Leaf Check</span>
+      <div class="logo"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M6 25C9 15 15 9 26 6c-1 10-7 17-18 19" fill="#fff"/><path d="M7.5 23.5 21 10" stroke="#1D6B42" stroke-width="1.7" stroke-linecap="round"/><circle cx="24.5" cy="24" r="3.6" fill="#E0473B"/></svg></div>
+      <span class="brand-name" data-i18n="app_name">Tomato Leaf Check</span>
     </div>
-    <div class="lang" role="group" aria-label="Language" id="lang"></div>
+    <div class="lang" id="lang" role="group" aria-label="Language"></div>
   </header>
 
-  <div class="status" id="status" role="status" aria-live="polite"></div>
-
-  <main id="main">
-    <!-- Check a leaf -->
+  <main class="scroller" id="scroller">
     <section class="view" id="view-check" aria-labelledby="tab-check">
-      <div id="check-start">
-        <div class="mount">
-          <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
-          <svg class="mount-leaf" viewBox="0 0 120 120" aria-hidden="true">
-            <path d="M20 100 C 30 60, 60 28, 104 16 C 98 60, 70 92, 24 100 Z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/>
-            <path d="M22 98 L 86 36 M48 72 L 44 52 M60 60 L 58 40 M48 72 L 68 74 M62 58 L 82 60 M74 46 L 72 30 M74 46 L 92 46" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-          </svg>
-          <h1 class="h1" data-i18n="check_title">Photograph one tomato leaf</h1>
-          <p class="lead" data-i18n="check_lead"></p>
-          <div class="actions">
-            <label class="btn primary" for="in-camera"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="13" r="3.6" fill="none" stroke="currentColor" stroke-width="1.8"/></svg><span data-i18n="take_photo">Take a photo</span></label>
-            <label class="btn" for="in-gallery"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="14" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M4 16l5-5 4 4 2-2 5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg><span data-i18n="choose_photo">Choose from gallery</span></label>
-            <input type="file" id="in-camera" accept="image/*" capture="environment" hidden>
-            <input type="file" id="in-gallery" accept="image/*" hidden>
-          </div>
-        </div>
-        <h2 class="h3" data-i18n="samples_title">Or try a sample leaf</h2>
-        <div class="samples" id="samples"></div>
-      </div>
+      <div id="check-start"></div>
       <div id="check-result" hidden></div>
     </section>
-
-    <!-- Beat the AI -->
     <section class="view" id="view-game" aria-labelledby="tab-game" hidden></section>
-
-    <!-- How it works -->
     <section class="view" id="view-about" aria-labelledby="tab-about" hidden></section>
   </main>
 
-  <nav class="tabs" role="tablist" aria-label="Sections">
+  <nav class="tabbar" role="tablist" aria-label="Sections">
     <button role="tab" id="tab-check" aria-controls="view-check" aria-selected="true" data-view="check">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20C7 11 12 6 20 4c-.5 8-5 14-14 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M6 19 16 9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      <span class="pill"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20C7 11 12 6 20 4c-.5 8-5 14-14 16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/><path d="M6 19 16 9" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></span>
       <span data-i18n="tab_check">Check a leaf</span>
     </button>
     <button role="tab" id="tab-game" aria-controls="view-game" aria-selected="false" data-view="game">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10v3a5 5 0 0 1-10 0z M12 12v4 M8 20h8 M9 16h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/><path d="M7 5H4c0 3 1.5 4.5 3.5 4.8 M17 5h3c0 3-1.5 4.5-3.5 4.8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      <span class="pill"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10v3a5 5 0 0 1-10 0z M12 12v4 M8 20h8 M9 16h6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" stroke-linecap="round"/><path d="M7 5H4c0 3 1.5 4.5 3.5 4.8 M17 5h3c0 3-1.5 4.5-3.5 4.8" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></span>
       <span data-i18n="tab_game">Beat the AI</span>
     </button>
     <button role="tab" id="tab-about" aria-controls="view-about" aria-selected="false" data-view="about">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 11v6 M12 7.5v.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      <span class="pill"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M12 11v6 M12 7.5v.5" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/></svg></span>
       <span data-i18n="tab_about">How it works</span>
     </button>
   </nav>
+</div>
 
-  <script src="vendor/tf.min.js"></script>
-  <script src="vendor/tf-backend-wasm.min.js"></script>
-  <script type="module" src="js/app.js"></script>
+<input type="file" id="in-camera" accept="image/*" capture="environment" class="sr-only" tabindex="-1" aria-hidden="true">
+<input type="file" id="in-gallery" accept="image/*" class="sr-only" tabindex="-1" aria-hidden="true">
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* QR Code Generator for JavaScript, Copyright (c) 2009 Kazuhiko Arase, MIT licence (https://github.com/kazuhikoarase/qrcode-generator) */
+// Copyright (c) 2009 Kazuhiko Arase
+// Licensed under the MIT license:
+var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],f={},c=function(t,r){o=function(t){for(var r=new Array(t),e=0;e<t;e+=1){r[e]=new Array(t);for(var n=0;n<t;n+=1)r[e][n]=null}return r}(i=4*e+17),l(0,0),l(i-7,0),l(0,i-7),s(),h(),d(t,r),e>=7&&v(t),null==a&&(a=p(e,n,u)),w(a,r)},l=function(t,r){for(var e=-1;e<=7;e+=1)if(!(t+e<=-1||i<=t+e))for(var n=-1;n<=7;n+=1)r+n<=-1||i<=r+n||(o[t+e][r+n]=0<=e&&e<=6&&(0==n||6==n)||0<=n&&n<=6&&(0==e||6==e)||2<=e&&e<=4&&2<=n&&n<=4)},h=function(){for(var t=8;t<i-8;t+=1)null==o[t][6]&&(o[t][6]=t%2==0);for(var r=8;r<i-8;r+=1)null==o[6][r]&&(o[6][r]=r%2==0)},s=function(){for(var t=B.getPatternPosition(e),r=0;r<t.length;r+=1)for(var n=0;n<t.length;n+=1){var i=t[r],a=t[n];if(null==o[i][a])for(var u=-2;u<=2;u+=1)for(var f=-2;f<=2;f+=1)o[i+u][a+f]=-2==u||2==u||-2==f||2==f||0==u&&0==f}},v=function(t){for(var r=B.getBCHTypeNumber(e),n=0;n<18;n+=1){var a=!t&&1==(r>>n&1);o[Math.floor(n/3)][n%3+i-8-3]=a}for(n=0;n<18;n+=1){a=!t&&1==(r>>n&1);o[n%3+i-8-3][Math.floor(n/3)]=a}},d=function(t,r){for(var e=n<<3|r,a=B.getBCHTypeInfo(e),u=0;u<15;u+=1){var f=!t&&1==(a>>u&1);u<6?o[u][8]=f:u<8?o[u+1][8]=f:o[i-15+u][8]=f}for(u=0;u<15;u+=1){f=!t&&1==(a>>u&1);u<8?o[8][i-u-1]=f:u<9?o[8][15-u-1+1]=f:o[8][15-u-1]=f}o[i-8][8]=!t},w=function(t,r){for(var e=-1,n=i-1,a=7,u=0,f=B.getMaskFunction(r),c=i-1;c>0;c-=2)for(6==c&&(c-=1);;){for(var g=0;g<2;g+=1)if(null==o[n][c-g]){var l=!1;u<t.length&&(l=1==(t[u]>>>a&1)),f(n,c-g)&&(l=!l),o[n][c-g]=l,-1==(a-=1)&&(u+=1,a=7)}if((n+=e)<0||i<=n){n-=e,e=-e;break}}},p=function(t,r,e){for(var n=A.getRSBlocks(t,r),o=b(),i=0;i<e.length;i+=1){var a=e[i];o.put(a.getMode(),4),o.put(a.getLength(),B.getLengthInBits(a.getMode(),t)),a.write(o)}var u=0;for(i=0;i<n.length;i+=1)u+=n[i].dataCount;if(o.getLengthInBits()>8*u)throw"code length overflow. ("+o.getLengthInBits()+">"+8*u+")";for(o.getLengthInBits()+4<=8*u&&o.put(0,4);o.getLengthInBits()%8!=0;)o.putBit(!1);for(;!(o.getLengthInBits()>=8*u||(o.put(236,8),o.getLengthInBits()>=8*u));)o.put(17,8);return function(t,r){for(var e=0,n=0,o=0,i=new Array(r.length),a=new Array(r.length),u=0;u<r.length;u+=1){var f=r[u].dataCount,c=r[u].totalCount-f;n=Math.max(n,f),o=Math.max(o,c),i[u]=new Array(f);for(var g=0;g<i[u].length;g+=1)i[u][g]=255&t.getBuffer()[g+e];e+=f;var l=B.getErrorCorrectPolynomial(c),h=k(i[u],l.getLength()-1).mod(l);for(a[u]=new Array(l.getLength()-1),g=0;g<a[u].length;g+=1){var s=g+h.getLength()-a[u].length;a[u][g]=s>=0?h.getAt(s):0}}var v=0;for(g=0;g<r.length;g+=1)v+=r[g].totalCount;var d=new Array(v),w=0;for(g=0;g<n;g+=1)for(u=0;u<r.length;u+=1)g<i[u].length&&(d[w]=i[u][g],w+=1);for(g=0;g<o;g+=1)for(u=0;u<r.length;u+=1)g<a[u].length&&(d[w]=a[u][g],w+=1);return d}(o,n)};f.addData=function(t,r){var e=null;switch(r=r||"Byte"){case"Numeric":e=M(t);break;case"Alphanumeric":e=x(t);break;case"Byte":e=m(t);break;case"Kanji":e=L(t);break;default:throw"mode:"+r}u.push(e),a=null},f.isDark=function(t,r){if(t<0||i<=t||r<0||i<=r)throw t+","+r;return o[t][r]},f.getModuleCount=function(){return i},f.make=function(){if(e<1){for(var t=1;t<40;t++){for(var r=A.getRSBlocks(t,n),o=b(),i=0;i<u.length;i++){var a=u[i];o.put(a.getMode(),4),o.put(a.getLength(),B.getLengthInBits(a.getMode(),t)),a.write(o)}var g=0;for(i=0;i<r.length;i++)g+=r[i].dataCount;if(o.getLengthInBits()<=8*g)break}e=t}c(!1,function(){for(var t=0,r=0,e=0;e<8;e+=1){c(!0,e);var n=B.getLostPoint(f);(0==e||t>n)&&(t=n,r=e)}return r}())},f.createTableTag=function(t,r){t=t||2;var e="";e+='<table style="',e+=" border-width: 0px; border-style: none;",e+=" border-collapse: collapse;",e+=" padding: 0px; margin: "+(r=void 0===r?4*t:r)+"px;",e+='">',e+="<tbody>";for(var n=0;n<f.getModuleCount();n+=1){e+="<tr>";for(var o=0;o<f.getModuleCount();o+=1)e+='<td style="',e+=" border-width: 0px; border-style: none;",e+=" border-collapse: collapse;",e+=" padding: 0px; margin: 0px;",e+=" width: "+t+"px;",e+=" height: "+t+"px;",e+=" background-color: ",e+=f.isDark(n,o)?"#000000":"#ffffff",e+=";",e+='"/>';e+="</tr>"}return e+="</tbody>",e+="</table>"},f.createSvgTag=function(t,r,e,n){var o={};"object"==typeof arguments[0]&&(t=(o=arguments[0]).cellSize,r=o.margin,e=o.alt,n=o.title),t=t||2,r=void 0===r?4*t:r,(e="string"==typeof e?{text:e}:e||{}).text=e.text||null,e.id=e.text?e.id||"qrcode-description":null,(n="string"==typeof n?{text:n}:n||{}).text=n.text||null,n.id=n.text?n.id||"qrcode-title":null;var i,a,u,c,g=f.getModuleCount()*t+2*r,l="";for(c="l"+t+",0 0,"+t+" -"+t+",0 0,-"+t+"z ",l+='<svg version="1.1" xmlns="http://www.w3.org/2000/svg"',l+=o.scalable?"":' width="'+g+'px" height="'+g+'px"',l+=' viewBox="0 0 '+g+" "+g+'" ',l+=' preserveAspectRatio="xMinYMin meet"',l+=n.text||e.text?' role="img" aria-labelledby="'+y([n.id,e.id].join(" ").trim())+'"':"",l+=">",l+=n.text?'<title id="'+y(n.id)+'">'+y(n.text)+"</title>":"",l+=e.text?'<description id="'+y(e.id)+'">'+y(e.text)+"</description>":"",l+='<rect width="100%" height="100%" fill="white" cx="0" cy="0"/>',l+='<path d="',a=0;a<f.getModuleCount();a+=1)for(u=a*t+r,i=0;i<f.getModuleCount();i+=1)f.isDark(a,i)&&(l+="M"+(i*t+r)+","+u+c);return l+='" stroke="transparent" fill="black"/>',l+="</svg>"},f.createDataURL=function(t,r){t=t||2,r=void 0===r?4*t:r;var e=f.getModuleCount()*t+2*r,n=r,o=e-r;return I(e,e,function(r,e){if(n<=r&&r<o&&n<=e&&e<o){var i=Math.floor((r-n)/t),a=Math.floor((e-n)/t);return f.isDark(a,i)?0:1}return 1})},f.createImgTag=function(t,r,e){t=t||2,r=void 0===r?4*t:r;var n=f.getModuleCount()*t+2*r,o="";return o+="<img",o+=' src="',o+=f.createDataURL(t,r),o+='"',o+=' width="',o+=n,o+='"',o+=' height="',o+=n,o+='"',e&&(o+=' alt="',o+=y(e),o+='"'),o+="/>"};var y=function(t){for(var r="",e=0;e<t.length;e+=1){var n=t.charAt(e);switch(n){case"<":r+="&lt;";break;case">":r+="&gt;";break;case"&":r+="&amp;";break;case'"':r+="&quot;";break;default:r+=n}}return r};return f.createASCII=function(t,r){if((t=t||1)<2)return function(t){t=void 0===t?2:t;var r,e,n,o,i,a=1*f.getModuleCount()+2*t,u=t,c=a-t,g={"██":"█","█ ":"▀"," █":"▄","  ":" "},l={"██":"▀","█ ":"▀"," █":" ","  ":" "},h="";for(r=0;r<a;r+=2){for(n=Math.floor((r-u)/1),o=Math.floor((r+1-u)/1),e=0;e<a;e+=1)i="█",u<=e&&e<c&&u<=r&&r<c&&f.isDark(n,Math.floor((e-u)/1))&&(i=" "),u<=e&&e<c&&u<=r+1&&r+1<c&&f.isDark(o,Math.floor((e-u)/1))?i+=" ":i+="█",h+=t<1&&r+1>=c?l[i]:g[i];h+="\n"}return a%2&&t>0?h.substring(0,h.length-a-1)+Array(a+1).join("▀"):h.substring(0,h.length-1)}(r);t-=1,r=void 0===r?2*t:r;var e,n,o,i,a=f.getModuleCount()*t+2*r,u=r,c=a-r,g=Array(t+1).join("██"),l=Array(t+1).join("  "),h="",s="";for(e=0;e<a;e+=1){for(o=Math.floor((e-u)/t),s="",n=0;n<a;n+=1)i=1,u<=n&&n<c&&u<=e&&e<c&&f.isDark(o,Math.floor((n-u)/t))&&(i=0),s+=i?g:l;for(o=0;o<t;o+=1)h+=s+"\n"}return h.substring(0,h.length-1)},f.renderTo2dContext=function(t,r){r=r||2;for(var e=f.getModuleCount(),n=0;n<e;n++)for(var o=0;o<e;o++)t.fillStyle=f.isDark(n,o)?"black":"white",t.fillRect(n*r,o*r,r,r)},f};t.stringToBytes=(t.stringToBytesFuncs={default:function(t){for(var r=[],e=0;e<t.length;e+=1){var n=t.charCodeAt(e);r.push(255&n)}return r}}).default,t.createStringToBytes=function(t,r){var e=function(){for(var e=S(t),n=function(){var t=e.read();if(-1==t)throw"eof";return t},o=0,i={};;){var a=e.read();if(-1==a)break;var u=n(),f=n()<<8|n();i[String.fromCharCode(a<<8|u)]=f,o+=1}if(o!=r)throw o+" != "+r;return i}(),n="?".charCodeAt(0);return function(t){for(var r=[],o=0;o<t.length;o+=1){var i=t.charCodeAt(o);if(i<128)r.push(i);else{var a=e[t.charAt(o)];"number"==typeof a?(255&a)==a?r.push(a):(r.push(a>>>8),r.push(255&a)):r.push(n)}}return r}};var r,e,n,o,i,a=1,u=2,f=4,c=8,g={L:1,M:0,Q:3,H:2},l=0,h=1,s=2,v=3,d=4,w=5,p=6,y=7,B=(r=[[],[6,18],[6,22],[6,26],[6,30],[6,34],[6,22,38],[6,24,42],[6,26,46],[6,28,50],[6,30,54],[6,32,58],[6,34,62],[6,26,46,66],[6,26,48,70],[6,26,50,74],[6,30,54,78],[6,30,56,82],[6,30,58,86],[6,34,62,90],[6,28,50,72,94],[6,26,50,74,98],[6,30,54,78,102],[6,28,54,80,106],[6,32,58,84,110],[6,30,58,86,114],[6,34,62,90,118],[6,26,50,74,98,122],[6,30,54,78,102,126],[6,26,52,78,104,130],[6,30,56,82,108,134],[6,34,60,86,112,138],[6,30,58,86,114,142],[6,34,62,90,118,146],[6,30,54,78,102,126,150],[6,24,50,76,102,128,154],[6,28,54,80,106,132,158],[6,32,58,84,110,136,162],[6,26,54,82,110,138,166],[6,30,58,86,114,142,170]],e=1335,n=7973,i=function(t){for(var r=0;0!=t;)r+=1,t>>>=1;return r},(o={}).getBCHTypeInfo=function(t){for(var r=t<<10;i(r)-i(e)>=0;)r^=e<<i(r)-i(e);return 21522^(t<<10|r)},o.getBCHTypeNumber=function(t){for(var r=t<<12;i(r)-i(n)>=0;)r^=n<<i(r)-i(n);return t<<12|r},o.getPatternPosition=function(t){return r[t-1]},o.getMaskFunction=function(t){switch(t){case l:return function(t,r){return(t+r)%2==0};case h:return function(t,r){return t%2==0};case s:return function(t,r){return r%3==0};case v:return function(t,r){return(t+r)%3==0};case d:return function(t,r){return(Math.floor(t/2)+Math.floor(r/3))%2==0};case w:return function(t,r){return t*r%2+t*r%3==0};case p:return function(t,r){return(t*r%2+t*r%3)%2==0};case y:return function(t,r){return(t*r%3+(t+r)%2)%2==0};default:throw"bad maskPattern:"+t}},o.getErrorCorrectPolynomial=function(t){for(var r=k([1],0),e=0;e<t;e+=1)r=r.multiply(k([1,C.gexp(e)],0));return r},o.getLengthInBits=function(t,r){if(1<=r&&r<10)switch(t){case a:return 10;case u:return 9;case f:case c:return 8;default:throw"mode:"+t}else if(r<27)switch(t){case a:return 12;case u:return 11;case f:return 16;case c:return 10;default:throw"mode:"+t}else{if(!(r<41))throw"type:"+r;switch(t){case a:return 14;case u:return 13;case f:return 16;case c:return 12;default:throw"mode:"+t}}},o.getLostPoint=function(t){for(var r=t.getModuleCount(),e=0,n=0;n<r;n+=1)for(var o=0;o<r;o+=1){for(var i=0,a=t.isDark(n,o),u=-1;u<=1;u+=1)if(!(n+u<0||r<=n+u))for(var f=-1;f<=1;f+=1)o+f<0||r<=o+f||0==u&&0==f||a==t.isDark(n+u,o+f)&&(i+=1);i>5&&(e+=3+i-5)}for(n=0;n<r-1;n+=1)for(o=0;o<r-1;o+=1){var c=0;t.isDark(n,o)&&(c+=1),t.isDark(n+1,o)&&(c+=1),t.isDark(n,o+1)&&(c+=1),t.isDark(n+1,o+1)&&(c+=1),0!=c&&4!=c||(e+=3)}for(n=0;n<r;n+=1)for(o=0;o<r-6;o+=1)t.isDark(n,o)&&!t.isDark(n,o+1)&&t.isDark(n,o+2)&&t.isDark(n,o+3)&&t.isDark(n,o+4)&&!t.isDark(n,o+5)&&t.isDark(n,o+6)&&(e+=40);for(o=0;o<r;o+=1)for(n=0;n<r-6;n+=1)t.isDark(n,o)&&!t.isDark(n+1,o)&&t.isDark(n+2,o)&&t.isDark(n+3,o)&&t.isDark(n+4,o)&&!t.isDark(n+5,o)&&t.isDark(n+6,o)&&(e+=40);var g=0;for(o=0;o<r;o+=1)for(n=0;n<r;n+=1)t.isDark(n,o)&&(g+=1);return e+=Math.abs(100*g/r/r-50)/5*10},o),C=function(){for(var t=new Array(256),r=new Array(256),e=0;e<8;e+=1)t[e]=1<<e;for(e=8;e<256;e+=1)t[e]=t[e-4]^t[e-5]^t[e-6]^t[e-8];for(e=0;e<255;e+=1)r[t[e]]=e;var n={glog:function(t){if(t<1)throw"glog("+t+")";return r[t]},gexp:function(r){for(;r<0;)r+=255;for(;r>=256;)r-=255;return t[r]}};return n}();function k(t,r){if(void 0===t.length)throw t.length+"/"+r;var e=function(){for(var e=0;e<t.length&&0==t[e];)e+=1;for(var n=new Array(t.length-e+r),o=0;o<t.length-e;o+=1)n[o]=t[o+e];return n}(),n={getAt:function(t){return e[t]},getLength:function(){return e.length},multiply:function(t){for(var r=new Array(n.getLength()+t.getLength()-1),e=0;e<n.getLength();e+=1)for(var o=0;o<t.getLength();o+=1)r[e+o]^=C.gexp(C.glog(n.getAt(e))+C.glog(t.getAt(o)));return k(r,0)},mod:function(t){if(n.getLength()-t.getLength()<0)return n;for(var r=C.glog(n.getAt(0))-C.glog(t.getAt(0)),e=new Array(n.getLength()),o=0;o<n.getLength();o+=1)e[o]=n.getAt(o);for(o=0;o<t.getLength();o+=1)e[o]^=C.gexp(C.glog(t.getAt(o))+r);return k(e,0).mod(t)}};return n}var A=function(){var t=[[1,26,19],[1,26,16],[1,26,13],[1,26,9],[1,44,34],[1,44,28],[1,44,22],[1,44,16],[1,70,55],[1,70,44],[2,35,17],[2,35,13],[1,100,80],[2,50,32],[2,50,24],[4,25,9],[1,134,108],[2,67,43],[2,33,15,2,34,16],[2,33,11,2,34,12],[2,86,68],[4,43,27],[4,43,19],[4,43,15],[2,98,78],[4,49,31],[2,32,14,4,33,15],[4,39,13,1,40,14],[2,121,97],[2,60,38,2,61,39],[4,40,18,2,41,19],[4,40,14,2,41,15],[2,146,116],[3,58,36,2,59,37],[4,36,16,4,37,17],[4,36,12,4,37,13],[2,86,68,2,87,69],[4,69,43,1,70,44],[6,43,19,2,44,20],[6,43,15,2,44,16],[4,101,81],[1,80,50,4,81,51],[4,50,22,4,51,23],[3,36,12,8,37,13],[2,116,92,2,117,93],[6,58,36,2,59,37],[4,46,20,6,47,21],[7,42,14,4,43,15],[4,133,107],[8,59,37,1,60,38],[8,44,20,4,45,21],[12,33,11,4,34,12],[3,145,115,1,146,116],[4,64,40,5,65,41],[11,36,16,5,37,17],[11,36,12,5,37,13],[5,109,87,1,110,88],[5,65,41,5,66,42],[5,54,24,7,55,25],[11,36,12,7,37,13],[5,122,98,1,123,99],[7,73,45,3,74,46],[15,43,19,2,44,20],[3,45,15,13,46,16],[1,135,107,5,136,108],[10,74,46,1,75,47],[1,50,22,15,51,23],[2,42,14,17,43,15],[5,150,120,1,151,121],[9,69,43,4,70,44],[17,50,22,1,51,23],[2,42,14,19,43,15],[3,141,113,4,142,114],[3,70,44,11,71,45],[17,47,21,4,48,22],[9,39,13,16,40,14],[3,135,107,5,136,108],[3,67,41,13,68,42],[15,54,24,5,55,25],[15,43,15,10,44,16],[4,144,116,4,145,117],[17,68,42],[17,50,22,6,51,23],[19,46,16,6,47,17],[2,139,111,7,140,112],[17,74,46],[7,54,24,16,55,25],[34,37,13],[4,151,121,5,152,122],[4,75,47,14,76,48],[11,54,24,14,55,25],[16,45,15,14,46,16],[6,147,117,4,148,118],[6,73,45,14,74,46],[11,54,24,16,55,25],[30,46,16,2,47,17],[8,132,106,4,133,107],[8,75,47,13,76,48],[7,54,24,22,55,25],[22,45,15,13,46,16],[10,142,114,2,143,115],[19,74,46,4,75,47],[28,50,22,6,51,23],[33,46,16,4,47,17],[8,152,122,4,153,123],[22,73,45,3,74,46],[8,53,23,26,54,24],[12,45,15,28,46,16],[3,147,117,10,148,118],[3,73,45,23,74,46],[4,54,24,31,55,25],[11,45,15,31,46,16],[7,146,116,7,147,117],[21,73,45,7,74,46],[1,53,23,37,54,24],[19,45,15,26,46,16],[5,145,115,10,146,116],[19,75,47,10,76,48],[15,54,24,25,55,25],[23,45,15,25,46,16],[13,145,115,3,146,116],[2,74,46,29,75,47],[42,54,24,1,55,25],[23,45,15,28,46,16],[17,145,115],[10,74,46,23,75,47],[10,54,24,35,55,25],[19,45,15,35,46,16],[17,145,115,1,146,116],[14,74,46,21,75,47],[29,54,24,19,55,25],[11,45,15,46,46,16],[13,145,115,6,146,116],[14,74,46,23,75,47],[44,54,24,7,55,25],[59,46,16,1,47,17],[12,151,121,7,152,122],[12,75,47,26,76,48],[39,54,24,14,55,25],[22,45,15,41,46,16],[6,151,121,14,152,122],[6,75,47,34,76,48],[46,54,24,10,55,25],[2,45,15,64,46,16],[17,152,122,4,153,123],[29,74,46,14,75,47],[49,54,24,10,55,25],[24,45,15,46,46,16],[4,152,122,18,153,123],[13,74,46,32,75,47],[48,54,24,14,55,25],[42,45,15,32,46,16],[20,147,117,4,148,118],[40,75,47,7,76,48],[43,54,24,22,55,25],[10,45,15,67,46,16],[19,148,118,6,149,119],[18,75,47,31,76,48],[34,54,24,34,55,25],[20,45,15,61,46,16]],r=function(t,r){var e={};return e.totalCount=t,e.dataCount=r,e},e={};return e.getRSBlocks=function(e,n){var o=function(r,e){switch(e){case g.L:return t[4*(r-1)+0];case g.M:return t[4*(r-1)+1];case g.Q:return t[4*(r-1)+2];case g.H:return t[4*(r-1)+3];default:return}}(e,n);if(void 0===o)throw"bad rs block @ typeNumber:"+e+"/errorCorrectionLevel:"+n;for(var i=o.length/3,a=[],u=0;u<i;u+=1)for(var f=o[3*u+0],c=o[3*u+1],l=o[3*u+2],h=0;h<f;h+=1)a.push(r(c,l));return a},e}(),b=function(){var t=[],r=0,e={getBuffer:function(){return t},getAt:function(r){var e=Math.floor(r/8);return 1==(t[e]>>>7-r%8&1)},put:function(t,r){for(var n=0;n<r;n+=1)e.putBit(1==(t>>>r-n-1&1))},getLengthInBits:function(){return r},putBit:function(e){var n=Math.floor(r/8);t.length<=n&&t.push(0),e&&(t[n]|=128>>>r%8),r+=1}};return e},M=function(t){var r=a,e=t,n={getMode:function(){return r},getLength:function(t){return e.length},write:function(t){for(var r=e,n=0;n+2<r.length;)t.put(o(r.substring(n,n+3)),10),n+=3;n<r.length&&(r.length-n==1?t.put(o(r.substring(n,n+1)),4):r.length-n==2&&t.put(o(r.substring(n,n+2)),7))}},o=function(t){for(var r=0,e=0;e<t.length;e+=1)r=10*r+i(t.charAt(e));return r},i=function(t){if("0"<=t&&t<="9")return t.charCodeAt(0)-"0".charCodeAt(0);throw"illegal char :"+t};return n},x=function(t){var r=u,e=t,n={getMode:function(){return r},getLength:function(t){return e.length},write:function(t){for(var r=e,n=0;n+1<r.length;)t.put(45*o(r.charAt(n))+o(r.charAt(n+1)),11),n+=2;n<r.length&&t.put(o(r.charAt(n)),6)}},o=function(t){if("0"<=t&&t<="9")return t.charCodeAt(0)-"0".charCodeAt(0);if("A"<=t&&t<="Z")return t.charCodeAt(0)-"A".charCodeAt(0)+10;switch(t){case" ":return 36;case"$":return 37;case"%":return 38;case"*":return 39;case"+":return 40;case"-":return 41;case".":return 42;case"/":return 43;case":":return 44;default:throw"illegal char :"+t}};return n},m=function(r){var e=f,n=t.stringToBytes(r),o={getMode:function(){return e},getLength:function(t){return n.length},write:function(t){for(var r=0;r<n.length;r+=1)t.put(n[r],8)}};return o},L=function(r){var e=c,n=t.stringToBytesFuncs.SJIS;if(!n)throw"sjis not supported.";!function(){var t=n("友");if(2!=t.length||38726!=(t[0]<<8|t[1]))throw"sjis not supported."}();var o=n(r),i={getMode:function(){return e},getLength:function(t){return~~(o.length/2)},write:function(t){for(var r=o,e=0;e+1<r.length;){var n=(255&r[e])<<8|255&r[e+1];if(33088<=n&&n<=40956)n-=33088;else{if(!(57408<=n&&n<=60351))throw"illegal char at "+(e+1)+"/"+n;n-=49472}n=192*(n>>>8&255)+(255&n),t.put(n,13),e+=2}if(e<r.length)throw"illegal char at "+(e+1)}};return i},D=function(){var t=[],r={writeByte:function(r){t.push(255&r)},writeShort:function(t){r.writeByte(t),r.writeByte(t>>>8)},writeBytes:function(t,e,n){e=e||0,n=n||t.length;for(var o=0;o<n;o+=1)r.writeByte(t[o+e])},writeString:function(t){for(var e=0;e<t.length;e+=1)r.writeByte(t.charCodeAt(e))},toByteArray:function(){return t},toString:function(){var r="";r+="[";for(var e=0;e<t.length;e+=1)e>0&&(r+=","),r+=t[e];return r+="]"}};return r},S=function(t){var r=t,e=0,n=0,o=0,i={read:function(){for(;o<8;){if(e>=r.length){if(0==o)return-1;throw"unexpected end of file./"+o}var t=r.charAt(e);if(e+=1,"="==t)return o=0,-1;t.match(/^\s$/)||(n=n<<6|a(t.charCodeAt(0)),o+=6)}var i=n>>>o-8&255;return o-=8,i}},a=function(t){if(65<=t&&t<=90)return t-65;if(97<=t&&t<=122)return t-97+26;if(48<=t&&t<=57)return t-48+52;if(43==t)return 62;if(47==t)return 63;throw"c:"+t};return i},I=function(t,r,e){for(var n=function(t,r){var e=t,n=r,o=new Array(t*r),i={setPixel:function(t,r,n){o[r*e+t]=n},write:function(t){t.writeString("GIF87a"),t.writeShort(e),t.writeShort(n),t.writeByte(128),t.writeByte(0),t.writeByte(0),t.writeByte(0),t.writeByte(0),t.writeByte(0),t.writeByte(255),t.writeByte(255),t.writeByte(255),t.writeString(","),t.writeShort(0),t.writeShort(0),t.writeShort(e),t.writeShort(n),t.writeByte(0);var r=a(2);t.writeByte(2);for(var o=0;r.length-o>255;)t.writeByte(255),t.writeBytes(r,o,255),o+=255;t.writeByte(r.length-o),t.writeBytes(r,o,r.length-o),t.writeByte(0),t.writeString(";")}},a=function(t){for(var r=1<<t,e=1+(1<<t),n=t+1,i=u(),a=0;a<r;a+=1)i.add(String.fromCharCode(a));i.add(String.fromCharCode(r)),i.add(String.fromCharCode(e));var f,c,g,l=D(),h=(f=l,c=0,g=0,{write:function(t,r){if(t>>>r!=0)throw"length over";for(;c+r>=8;)f.writeByte(255&(t<<c|g)),r-=8-c,t>>>=8-c,g=0,c=0;g|=t<<c,c+=r},flush:function(){c>0&&f.writeByte(g)}});h.write(r,n);var s=0,v=String.fromCharCode(o[s]);for(s+=1;s<o.length;){var d=String.fromCharCode(o[s]);s+=1,i.contains(v+d)?v+=d:(h.write(i.indexOf(v),n),i.size()<4095&&(i.size()==1<<n&&(n+=1),i.add(v+d)),v=d)}return h.write(i.indexOf(v),n),h.write(e,n),h.flush(),l.toByteArray()},u=function(){var t={},r=0,e={add:function(n){if(e.contains(n))throw"dup key:"+n;t[n]=r,r+=1},size:function(){return r},indexOf:function(r){return t[r]},contains:function(r){return void 0!==t[r]}};return e};return i}(t,r),o=0;o<r;o+=1)for(var i=0;i<t;i+=1)n.setPixel(i,o,e(i,o));var a=D();n.write(a);for(var u=function(){var t=0,r=0,e=0,n="",o={},i=function(t){n+=String.fromCharCode(a(63&t))},a=function(t){if(t<0);else{if(t<26)return 65+t;if(t<52)return t-26+97;if(t<62)return t-52+48;if(62==t)return 43;if(63==t)return 47}throw"n:"+t};return o.writeByte=function(n){for(t=t<<8|255&n,r+=8,e+=1;r>=6;)i(t>>>r-6),r-=6},o.flush=function(){if(r>0&&(i(t<<6-r),t=0,r=0),e%3!=0)for(var o=3-e%3,a=0;a<o;a+=1)n+="="},o.toString=function(){return n},o}(),f=a.toByteArray(),c=0;c<f.length;c+=1)u.writeByte(f[c]);return u.flush(),"data:image/gif;base64,"+u};return t}();qrcode.stringToBytesFuncs["UTF-8"]=function(t){return function(t){for(var r=[],e=0;e<t.length;e++){var n=t.charCodeAt(e);n<128?r.push(n):n<2048?r.push(192|n>>6,128|63&n):n<55296||n>=57344?r.push(224|n>>12,128|n>>6&63,128|63&n):(e++,n=65536+((1023&n)<<10|1023&t.charCodeAt(e)),r.push(240|n>>18,128|n>>12&63,128|n>>6&63,128|63&n))}return r}(t)},function(t){"function"==typeof define&&define.amd?define([],t):"object"==typeof exports&&(module.exports=t())}(function(){return qrcode});
+</script>
+<script src="vendor/tf.min.js"></script>
+<script src="vendor/tf-backend-wasm.min.js"></script>
+<script type="module">
+import { STRINGS, LANGS } from './js/i18n.js';
+import { loadModel, prepare, diagnose, camFor, paintHeat, benchmark, backendName } from './js/model.js';
+
+// ---------- extra and updated text for version 2 (Hindi and Marathi are drafts) ----------
+const MORE = {
+  en: {
+    view_heat: 'Heatmap',
+    heat_caption: 'Bright areas mattered most to the AI. If the bright part is the background, not the leaf, do not trust the answer.',
+    chip_loading: 'Starting the AI…', chip_ready: 'AI runs on this phone', chip_failed: 'AI could not start',
+    chip_offline: 'Works offline', chip_saving: 'Saving for offline…',
+    tips_title: 'For the best result',
+    diagnosis: 'Diagnosis', confidence: 'Confidence',
+    conf_note: 'Below {t}% the app says “Not sure” instead of guessing.',
+    new_check: 'New check',
+    listen: 'Listen', stop: 'Stop',
+    guess_pct: '{x}, {p}%',
+    share_title: 'Open on another phone',
+    share_body: 'Scan the code or share the link. The app installs to the home screen and works offline.',
+    copy_link: 'Copy link', share_link: 'Share link', link_copied: 'Link copied',
+    desk_title: 'This is a phone app',
+    desk_body: 'Scan the code with your phone camera to open Tomato Leaf Check. It installs to the home screen and works without internet. You can also try it here on the right.',
+    desk_note: 'Our web portal is a separate Streamlit site. This page is only the phone app.',
+    round_of: 'Leaf {i} of {n}',
+    you_vs_ai: 'You vs AI',
+    sure_tag: 'sure'
+  },
+  hi: {
+    view_heat: 'हीटमैप',
+    chip_loading: 'AI शुरू हो रहा है…', chip_ready: 'AI इसी फ़ोन पर चलता है', chip_failed: 'AI शुरू नहीं हो सका',
+    chip_offline: 'बिना इंटरनेट चलता है', chip_saving: 'ऑफ़लाइन के लिए सहेजा जा रहा है…',
+    tips_title: 'सबसे अच्छे नतीजे के लिए',
+    diagnosis: 'निदान', confidence: 'भरोसा',
+    conf_note: '{t}% से कम भरोसे पर ऐप अंदाज़ा लगाने के बजाय “पक्का नहीं” कहता है।',
+    new_check: 'नई जाँच',
+    listen: 'सुनें', stop: 'रोकें',
+    guess_pct: '{x}, {p}%',
+    share_title: 'दूसरे फ़ोन पर खोलें',
+    share_body: 'कोड स्कैन करें या लिंक भेजें। ऐप होम स्क्रीन पर इंस्टॉल होता है और बिना इंटरनेट चलता है।',
+    copy_link: 'लिंक कॉपी करें', share_link: 'लिंक भेजें', link_copied: 'लिंक कॉपी हो गया',
+    desk_title: 'यह फ़ोन ऐप है',
+    desk_body: 'Tomato Leaf Check खोलने के लिए फ़ोन के कैमरे से कोड स्कैन करें। यह होम स्क्रीन पर इंस्टॉल होता है और बिना इंटरनेट चलता है। आप इसे दाईं ओर यहीं भी आज़मा सकते हैं।',
+    desk_note: 'हमारा वेब पोर्टल एक अलग Streamlit साइट है। यह पेज सिर्फ़ फ़ोन ऐप है।',
+    round_of: 'पत्ती {i} / {n}',
+    you_vs_ai: 'आप बनाम AI',
+    sure_tag: 'भरोसा'
+  },
+  mr: {
+    view_heat: 'हीटमॅप',
+    chip_loading: 'AI सुरू होत आहे…', chip_ready: 'AI याच फोनवर चालते', chip_failed: 'AI सुरू होऊ शकले नाही',
+    chip_offline: 'इंटरनेटशिवाय चालते', chip_saving: 'ऑफलाइनसाठी जतन होत आहे…',
+    tips_title: 'सर्वोत्तम निकालासाठी',
+    diagnosis: 'निदान', confidence: 'खात्री',
+    conf_note: '{t}% पेक्षा कमी खात्री असल्यास ॲप अंदाज न लावता “खात्री नाही” सांगते.',
+    new_check: 'नवीन तपासणी',
+    listen: 'ऐका', stop: 'थांबवा',
+    guess_pct: '{x}, {p}%',
+    share_title: 'दुसऱ्या फोनवर उघडा',
+    share_body: 'कोड स्कॅन करा किंवा लिंक पाठवा. ॲप होम स्क्रीनवर इन्स्टॉल होते आणि इंटरनेटशिवाय चालते.',
+    copy_link: 'लिंक कॉपी करा', share_link: 'लिंक पाठवा', link_copied: 'लिंक कॉपी झाली',
+    desk_title: 'हे फोन ॲप आहे',
+    desk_body: 'Tomato Leaf Check उघडण्यासाठी फोनच्या कॅमेऱ्याने कोड स्कॅन करा. ते होम स्क्रीनवर इन्स्टॉल होते आणि इंटरनेटशिवाय चालते. उजवीकडे इथेही वापरून पाहू शकता.',
+    desk_note: 'आमचे वेब पोर्टल वेगळी Streamlit साइट आहे. हे पेज फक्त फोन ॲप आहे.',
+    round_of: 'पान {i} / {n}',
+    you_vs_ai: 'तुम्ही विरुद्ध AI',
+    sure_tag: 'खात्री'
+  }
+};
+for (const k of Object.keys(MORE)) Object.assign(STRINGS[k], MORE[k]);
+
+// ---------- icons ----------
+const I = {
+  camera: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8.5h3.2l1.8-2.7h6l1.8 2.7H20v10.7H4z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="13.6" r="3.5" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>',
+  image: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.8" y="4.8" width="16.4" height="14.4" rx="2.2" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="9" cy="10" r="1.6" fill="currentColor"/><path d="M4 17l4.6-4.6 3.6 3.6 2.2-2.2L20 19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>',
+  scan: '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 10V6a2 2 0 0 1 2-2h4M22 4h4a2 2 0 0 1 2 2v4M28 22v4a2 2 0 0 1-2 2h-4M10 28H6a2 2 0 0 1-2-2v-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M10 23c2-7 6-11 13-13-1 7-5 12-12.5 13" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M11 22l7.5-7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+  leaf: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20C7 11 12 6 20 4c-.5 8-5 14-14 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M6 19 16 9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
+  sun: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.5 5.5l1.7 1.7M16.8 16.8l1.7 1.7M5.5 18.5l1.7-1.7M16.8 7.2l1.7-1.7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+  frame: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8 14l2.5-2.5 2 2 3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></svg>',
+  steady: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v4M12 17v4M3 12h4M17 12h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>',
+  back: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  speaker: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+  chev: '<svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  ok: '<svg class="ok" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="currentColor"/><path d="M7.5 12.3l3 3 6-6.3" fill="none" stroke="var(--surface)" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  no: '<svg class="no" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="currentColor"/><path d="M8.5 8.5l7 7M15.5 8.5l-7 7" stroke="var(--surface)" stroke-width="2.3" stroke-linecap="round"/></svg>',
+  share: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3.5M7.5 8 12 3.5 16.5 8" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 11.5H5v9h14v-9h-1" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></svg>',
+  trophy: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10v3a5 5 0 0 1-10 0z M12 12v4 M8 20h8 M9 16h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/><path d="M7 5H4c0 3 1.5 4.5 3.5 4.8 M17 5h3c0 3-1.5 4.5-3.5 4.8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>'
+};
+
+// ---------- state ----------
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* private mode */ } }
+};
+let lang = store.get('lang', 'en');
+if (!STRINGS[lang]) lang = 'en';
+let cards = null, game = null, meta = null, PHOTOS = {};
+const photo = f => PHOTOS[f] || f;
+let modelState = 'loading';
+let lastCheck = null;
+let speedMs = null, speedRuns = 0;
+let offlineReady = false;
+let installPrompt = null;
+let currentView = 'check';
+const OPTION_ORDER = ['Healthy', 'Early_blight', 'Late_blight', 'Spotted Wilt Virus', 'Leaf Miner', 'Magnesium Deficiency', 'Nitrogen Deficiency'];
+const GAME = { lab: 5, field: 3 };
+
+const $ = s => document.querySelector(s);
+const scroller = $('#scroller');
+const toTop = (smooth = false) => scroller.scrollTo({ top: 0, behavior: smooth ? 'smooth' : 'auto' });
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+function t(key, vars = {}) {
+  let s = (STRINGS[lang] && STRINGS[lang][key]) || STRINGS.en[key] || key;
+  for (const [k, v] of Object.entries(vars)) s = s.split('{' + k + '}').join(v);
+  return s;
+}
+const loc = o => (o && typeof o === 'object' && !Array.isArray(o)) ? (o[lang] ?? o.en) : o;
+const title = cls => loc(cards[cls].title);
+const pct = p => Math.round(p * 100);
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const TH = () => (meta ? meta.threshold : 0.85);
+const appUrl = () => location.origin + location.pathname;
+
+function toast(msg) {
+  const el = $('#toast'); el.textContent = msg; el.classList.add('on');
+  clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.remove('on'), 1800);
+}
+
+// ---------- model ----------
+const modelReady = loadModel().then(m => { meta = m; modelState = 'ready'; renderStatus(); if (currentView === 'about') renderAbout(); return m; })
+  .catch(err => { console.error(err); modelState = 'failed'; renderStatus(); throw err; });
+
+// ---------- language ----------
+function renderLangButtons() {
+  $('#lang').innerHTML = LANGS.map(l => `<button type="button" data-lang="${l.code}" aria-pressed="${l.code === lang}" lang="${l.code}">${l.label}</button>`).join('');
+}
+function setLang(code) {
+  lang = code; store.set('lang', code);
+  document.documentElement.lang = code;
+  stopSpeaking();
+  renderLangButtons(); applyStatic(); renderHome(); renderDesk();
+  if (lastCheck) renderCheckResult();
+  renderGame(); renderAbout();
+}
+function applyStatic() {
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+  document.title = t('app_name');
+}
+
+// ---------- status chips ----------
+function statusChips() {
+  const ai = modelState === 'ready' ? `<span class="chip ok"><i></i>${esc(t('chip_ready'))}</span>`
+    : modelState === 'failed' ? `<span class="chip bad"><i></i>${esc(t('chip_failed'))}</span>`
+    : `<span class="chip wait"><i></i>${esc(t('chip_loading'))}</span>`;
+  const off = !('serviceWorker' in navigator) ? '' : offlineReady ? `<span class="chip ok"><i></i>${esc(t('chip_offline'))}</span>`
+    : `<span class="chip wait"><i></i>${esc(t('chip_saving'))}</span>`;
+  return ai + off;
+}
+function renderStatus() {
+  document.querySelectorAll('[data-status]').forEach(el => { el.innerHTML = statusChips(); });
+}
+
+// ---------- navigation ----------
+function showView(name) {
+  if (!['check', 'game', 'about'].includes(name)) name = 'check';
+  currentView = name;
+  document.querySelectorAll('.view').forEach(v => { v.hidden = v.id !== 'view-' + name; });
+  document.querySelectorAll('.tabbar button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.view === name)));
+  if (name === 'about') renderAbout();
+  toTop();
+}
+
+// ---------- photos ----------
+function loadImage(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error('image'));
+    img.src = src;
+  });
+}
+
+// A photo with the heatmap layer and a Photo / Heatmap switch on top.
+function makePhoto(img, vh, { toggle = true, heatOn = false } = {}) {
+  const wrap = document.createElement('div'); wrap.className = 'photo';
+  const w = img.naturalWidth, h = img.naturalHeight, ar = w / h;
+  const dw = Math.min(900, Math.max(w, 448)), dh = Math.round(dw / ar);
+  const stack = document.createElement('div'); stack.className = 'stack';
+  stack.style.width = `min(100%, calc(${vh}vh * ${ar.toFixed(4)}))`;
+  const base = document.createElement('canvas'); base.width = dw; base.height = dh;
+  const ctx = base.getContext('2d'); ctx.imageSmoothingQuality = 'high'; ctx.drawImage(img, 0, 0, dw, dh);
+  const heat = document.createElement('canvas'); heat.className = 'heat';
+  heat.width = 280; heat.height = Math.max(1, Math.round(280 / ar)); heat.setAttribute('aria-hidden', 'true');
+  stack.append(base, heat); wrap.append(stack);
+  let sw = null;
+  if (toggle) {
+    sw = document.createElement('div'); sw.className = 'toggle'; sw.setAttribute('role', 'group');
+    sw.innerHTML = `<button type="button" data-heat="0">${esc(t('view_photo'))}</button><button type="button" data-heat="1">${esc(t('view_heat'))}</button>`;
+    wrap.append(sw);
+  }
+  const api = {
+    el: wrap,
+    setCam(cam) { paintHeat(heat, cam); },
+    showHeat(on) {
+      wrap.classList.toggle('show-heat', on);
+      if (sw) sw.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String((b.dataset.heat === '1') === on)));
+    }
+  };
+  api.showHeat(heatOn);
+  return api;
+}
+
+// ---------- check a leaf ----------
+function renderHome() {
+  if (!cards || !game) return;
+  const tips = loc(cards._uncertain.retake_tips);
+  const tipIcons = [I.frame, I.sun, I.leaf, I.steady];
+  $('#check-start').innerHTML = `
+    <div class="card hero">
+      <div class="badge">${I.scan}</div>
+      <h1 class="t-large">${esc(t('check_title'))}</h1>
+      <p class="lead">${esc(t('check_lead'))}</p>
+      <div class="btn-col">
+        <label class="btn btn-primary" for="in-camera">${I.camera}<span>${esc(t('take_photo'))}</span></label>
+        <label class="btn btn-secondary" for="in-gallery">${I.image}<span>${esc(t('choose_photo'))}</span></label>
+      </div>
+    </div>
+    <div class="chips status-chips" data-status>${statusChips()}</div>
+    <h2 class="label">${esc(t('samples_title'))}</h2>
+    <div class="samples">${game.samples.map((s, i) => {
+      const name = s.source.startsWith('PlantDoc') ? t('sample_field') : title(s.label);
+      return `<button type="button" class="sample" data-sample="${i}"><img src="${photo(s.file)}" alt=""><span>${esc(name)}</span></button>`;
+    }).join('')}</div>
+    <h2 class="label">${esc(t('tips_title'))}</h2>
+    <div class="group">${tips.map((x, i) => `<div class="row"><span class="ico-box">${tipIcons[i % tipIcons.length]}</span><span class="grow">${esc(x)}</span></div>`).join('')}</div>`;
+}
+
+async function checkPhoto(src) {
+  $('#check-start').hidden = true;
+  const box = $('#check-result'); box.hidden = false;
+  box.innerHTML = `<div class="busy"><div class="spinner"></div>${esc(t('reading'))}</div>`;
+  toTop();
+  let img;
+  try { img = await loadImage(src); } catch (e) {
+    box.innerHTML = `<div class="error">${esc(t('bad_image'))}</div><button class="btn btn-secondary" type="button" data-act="again">${esc(t('check_another'))}</button>`;
+    return;
+  }
+  try { await modelReady; } catch (e) { box.innerHTML = `<div class="error">${esc(t('status_failed'))}</div>`; return; }
+  const res = await diagnose(prepare(img));
+  lastCheck = { img, res, when: new Date(), showHeat: false };
+  renderCheckResult();
+}
+
+function adviceGroup(cls, { openFirst = true } = {}) {
+  const c = cards[cls], m = cards._meta;
+  const list = arr => `<ul>${loc(arr).map(x => `<li>${esc(x)}</li>`).join('')}</ul>`;
+  const sec = (name, body, open) => `<details class="acc" ${open ? 'open' : ''}><summary><span class="grow">${esc(name)}</span>${I.chev}</summary><div class="acc-body">${body}</div></details>`;
+  let html = `<div class="group">`;
+  html += sec(t('sec_now'), list(c.act_now), openFirst);
+  if (c.sprays.length) {
+    const rows = c.sprays.map(s => `<tr><td>${esc(s.product)}</td><td>${esc(loc(s.dose))}</td></tr>`).join('');
+    html += sec(t('sec_sprays'), `<div class="warn-box">${esc(loc(m.spray_warning))}</div><table class="spray"><thead><tr><th>${esc(t('product'))}</th><th>${esc(t('dose'))}</th></tr></thead><tbody>${rows}</tbody></table>`, false);
+  }
+  html += sec(t('sec_prevent'), list(c.prevent), false);
+  html += sec(t('sec_signs'), list(c.signs), false);
+  html += sec(t('sec_expert'), `<p>${esc(loc(c.expert))}</p>`, false);
+  html += `</div>`;
+  const links = c.sources.map(k => `<a href="${m.sources[k].url}" target="_blank" rel="noopener">${esc(m.sources[k].title)}</a>`).join('; ');
+  return html + `<p class="sources">${esc(t('advice_from'))}: ${links}</p>`;
+}
+
+function meter(conf, kind) {
+  const th = pct(TH());
+  return `<div class="meter">
+    <div class="meter-head"><span>${esc(t('confidence'))}</span><b>${pct(conf)}%</b></div>
+    <div class="meter-track" role="img" aria-label="${esc(t('confidence'))} ${pct(conf)}%">
+      <div class="meter-fill ${kind}" data-w="${(conf * 100).toFixed(1)}"></div>
+      <div class="meter-tick" style="left:${th}%"></div>
+    </div>
+    <div class="meter-note">${esc(t('conf_note', { t: th }))}</div>
+  </div>`;
+}
+
+function renderCheckResult() {
+  const { img, res, when } = lastCheck;
+  const box = $('#check-result');
+  const top = meta.classes[res.order[0]], conf = res.probs[res.order[0]], sure = conf >= TH();
+  const ph = makePhoto(img, 44, { heatOn: lastCheck.showHeat });
+  ph.setCam(camFor(res.features, res.order[0]));
+  lastCheck.photo = ph;
+  const timeStr = when.toLocaleString(lang === 'en' ? 'en-IN' : lang + '-IN', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' });
+  const speakBtn = canSpeak() ? `<button class="link-btn" type="button" data-act="speak">${I.speaker}<span>${esc(speaking ? t('stop') : t('listen'))}</span></button>` : '<span></span>';
+  let html = `<div class="subbar"><button class="link-btn" type="button" data-act="again">${I.back}<span>${esc(t('new_check'))}</span></button>${speakBtn}</div>
+    <div id="photo-slot"></div>
+    <p class="heat-note" ${lastCheck.showHeat ? '' : 'hidden'}>${esc(t('heat_caption'))}</p>`;
+  if (sure) {
+    const c = cards[top], u = c.urgency;
+    const chipKind = u === 'high' ? 'bad' : u === 'medium' ? 'warn' : 'ok';
+    html += `<div class="card diag">
+      <div class="diag-top"><span class="small">${esc(t('diagnosis'))}</span><span class="small num">${esc(timeStr)}</span></div>
+      <h2 class="t-title">${esc(title(top))}</h2>
+      <p class="diag-sub">${esc(loc(c.kind))}${loc(c.cause) ? `. ${esc(loc(c.cause))}` : ''}</p>
+      <div class="chips"><span class="chip ${chipKind}"><i></i>${esc(t('urgency_' + u))}</span></div>
+      ${meter(conf, u === 'high' ? 'high' : '')}
+    </div>
+    <div style="margin-top:16px">${adviceGroup(top)}</div>`;
+  } else {
+    const u = cards._uncertain, a = res.order[0], b = res.order[1];
+    html += `<div class="card diag">
+      <div class="diag-top"><span class="small">${esc(t('diagnosis'))}</span><span class="small num">${esc(timeStr)}</span></div>
+      <h2 class="t-title">${esc(loc(u.title))}</h2>
+      <p class="diag-sub">${esc(loc(u.message))}</p>
+      <div class="chips">
+        <span class="chip warn">${esc(t('guess_pct', { x: title(meta.classes[a]), p: pct(res.probs[a]) }))}</span>
+        <span class="chip">${esc(t('guess_pct', { x: title(meta.classes[b]), p: pct(res.probs[b]) }))}</span>
+      </div>
+      ${meter(conf, 'unsure')}
+    </div>
+    <h2 class="label">${esc(t('better_photo'))}</h2>
+    <div class="group">${loc(u.retake_tips).map(x => `<div class="row"><span class="grow">${esc(x)}</span></div>`).join('')}</div>
+    <p class="sources">${esc(loc(u.expert))}</p>`;
+    for (const k of [a, b]) html += `<h2 class="label">${esc(t('if_it_is', { x: title(meta.classes[k]) }))}</h2>${adviceGroup(meta.classes[k], { openFirst: false })}`;
+  }
+  html += `<h2 class="label">${esc(t('all_matches'))}</h2>
+    <div class="group bars">${res.order.map((i, k) => `
+      <div class="bar-row ${k === 0 ? 'top' : ''}"><span>${esc(title(meta.classes[i]))}</span><span class="num">${(res.probs[i] * 100).toFixed(1)}%</span>
+      <div class="track"><i style="width:${(res.probs[i] * 100).toFixed(1)}%"></i></div></div>`).join('')}</div>
+    <div style="margin-top:20px"><button class="btn btn-secondary" type="button" data-act="again">${esc(t('check_another'))}</button></div>
+    <p class="foot">${esc(t('worked_out', { s: (res.ms / 1000).toFixed(2) }))} ${esc(loc(cards._meta.app_warning))}</p>`;
+  box.innerHTML = html;
+  $('#photo-slot').replaceWith(ph.el);
+  requestAnimationFrame(() => requestAnimationFrame(() => box.querySelectorAll('.meter-fill').forEach(f => { f.style.width = f.dataset.w + '%'; })));
+}
+
+function resetCheck() {
+  stopSpeaking();
+  lastCheck = null;
+  $('#check-result').hidden = true; $('#check-result').innerHTML = '';
+  $('#check-start').hidden = false;
+  $('#in-camera').value = ''; $('#in-gallery').value = '';
+  toTop();
+}
+
+// ---------- read aloud ----------
+const VOICE_LANG = { en: ['en-IN', 'en'], hi: ['hi-IN', 'hi'], mr: ['mr-IN', 'mr', 'hi-IN', 'hi'] };
+function pickVoice() {
+  if (!('speechSynthesis' in window)) return null;
+  const voices = speechSynthesis.getVoices();
+  for (const want of VOICE_LANG[lang]) {
+    const v = voices.find(x => x.lang.replace('_', '-').toLowerCase().startsWith(want.toLowerCase()));
+    if (v) return v;
+  }
+  return null;
+}
+function canSpeak() { return !!pickVoice(); }
+let speaking = false;
+function speakResult() {
+  if (speaking) { stopSpeaking(); return; }
+  const { res } = lastCheck, top = meta.classes[res.order[0]], conf = res.probs[res.order[0]];
+  let parts;
+  if (conf >= TH()) {
+    const c = cards[top];
+    parts = [title(top), t('sure_pct', { p: pct(conf) }), t('urgency_' + c.urgency), t('sec_now'), ...loc(c.act_now)];
+  } else {
+    const u = cards._uncertain;
+    parts = [loc(u.title), loc(u.message), t('better_photo'), ...loc(u.retake_tips)];
+  }
+  const v = pickVoice(), u = new SpeechSynthesisUtterance(parts.join('. '));
+  u.voice = v; u.lang = v.lang; u.rate = 0.95;
+  u.onend = u.onerror = () => { speaking = false; updateSpeakBtn(); };
+  speechSynthesis.cancel(); speechSynthesis.speak(u); speaking = true; updateSpeakBtn();
+}
+function stopSpeaking() { if ('speechSynthesis' in window) speechSynthesis.cancel(); speaking = false; updateSpeakBtn(); }
+function updateSpeakBtn() { const b = document.querySelector('[data-act="speak"] span'); if (b) b.textContent = speaking ? t('stop') : t('listen'); }
+if ('speechSynthesis' in window) speechSynthesis.onvoiceschanged = () => { if (lastCheck && !document.querySelector('[data-act="speak"]')) renderCheckResult(); };
+
+// ---------- the game ----------
+let G = { phase: 'intro' };
+const shuffle = a => { const b = a.slice(); for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; };
+
+function newGame() {
+  const byClass = {};
+  for (const it of game.lab) (byClass[it.label] ||= []).push(it);
+  const lab = shuffle(Object.keys(byClass)).slice(0, GAME.lab).map(c => ({ ...shuffle(byClass[c])[0], stage: 'lab' }));
+  const fByClass = {};
+  for (const it of game.field) (fByClass[it.label] ||= []).push(it);
+  const field = shuffle(Object.keys(fByClass)).slice(0, GAME.field).map(c => ({ ...shuffle(fByClass[c])[0], stage: 'field' }));
+  G = { phase: 'round', rounds: [...lab, ...field], i: 0, you: 0, ai: 0, log: [] };
+  renderGame(); toTop();
+}
+
+function scoreCard(bump) {
+  return `<div class="card score" aria-live="polite">
+    <div class="side you"><span class="who">${esc(t('you'))}</span><span class="n"><span class="${bump === 'you' ? 'bump' : ''}">${G.you}</span></span></div>
+    <span class="vs">${esc(t('you_vs_ai'))}</span>
+    <div class="side ai"><span class="who">${esc(t('ai'))}</span><span class="n"><span class="${bump === 'ai' ? 'bump' : ''}">${G.ai}</span></span></div>
+  </div>
+  <div class="progress">${G.rounds.map((r, k) => `<i class="${r.stage} ${k < G.i || (k === G.i && G.phase === 'reveal') ? 'done' : ''} ${k === G.i && G.phase === 'round' ? 'now' : ''}"></i>`).join('')}</div>`;
+}
+
+function renderGame() {
+  const v = $('#view-game');
+  if (!cards || !game) return;
+  if (G.phase === 'intro') {
+    const best = store.get('best', null);
+    v.innerHTML = `<div class="card hero">
+        <div class="badge">${I.trophy}</div>
+        <h1 class="t-large">${esc(t('game_title'))}</h1>
+        <p class="lead">${esc(t('game_lead', { n: GAME.lab + GAME.field }))}</p>
+        <button class="btn btn-primary" type="button" data-game="start">${esc(t('start_game'))}</button>
+        ${best ? `<p class="small" style="margin:12px 0 0;text-align:center">${esc(t('best_score', best))}</p>` : ''}
+      </div>
+      <div class="group" style="margin-top:16px">
+        <div class="intro-stage"><span class="n lab">1</span><div><div class="t-head">${esc(t('stage1_name'))}</div><div class="small">${esc(t('stage1_desc', { n: GAME.lab }))}</div></div></div>
+        <div class="intro-stage"><span class="n field">2</span><div><div class="t-head">${esc(t('stage2_name'))}</div><div class="small">${esc(t('stage2_desc', { n: GAME.field }))}</div></div></div>
+      </div>`;
+    return;
+  }
+  if (G.phase === 'stage2') {
+    v.innerHTML = `${scoreCard()}<div class="card hero" style="margin-top:16px">
+      <div class="badge" style="background:var(--amber-soft);color:var(--amber)">${I.leaf}</div>
+      <h2 class="t-large">${esc(t('stage2_intro_title'))}</h2><p class="lead">${esc(t('stage2_intro'))}</p>
+      <button class="btn btn-primary" type="button" data-game="continue">${esc(t('continue'))}</button></div>`;
+    return;
+  }
+  if (G.phase === 'results') { renderResults(v); return; }
+
+  const r = G.rounds[G.i], labRounds = G.rounds.filter(x => x.stage === 'lab').length;
+  const stageName = r.stage === 'lab' ? t('stage1_name') : t('stage2_name');
+  const idx = r.stage === 'lab' ? G.i + 1 : G.i - labRounds + 1, n = r.stage === 'lab' ? labRounds : G.rounds.length - labRounds;
+  const log = G.log[G.i];
+  let body;
+  if (!log) {
+    body = `<h2 class="t-head" style="margin:16px 2px 10px">${esc(t('question'))}</h2>
+      ${G.busy ? `<div class="thinking"><div class="spinner"></div>${esc(t('ai_thinking'))}</div>` : ''}
+      <div class="options">${OPTION_ORDER.map(c => `<button type="button" class="opt ${G.busy && c === G.chosen ? 'chosen' : ''}" data-opt="${esc(c)}" ${G.busy ? 'disabled' : ''}>
+        <span class="radio"></span><span class="txt"><b>${esc(title(c))}</b><small>${esc(loc(cards[c].hint))}</small></span></button>`).join('')}</div>`;
+  } else {
+    const last = G.i === G.rounds.length - 1, beforeStage2 = r.stage === 'lab' && G.rounds[G.i + 1] && G.rounds[G.i + 1].stage === 'field';
+    G.nextPhase = last ? 'results' : beforeStage2 ? 'stage2' : 'round';
+    body = `<div class="card reveal">
+      <h2 class="t-title">${esc(t('it_was', { x: title(r.label) }))}</h2>
+      <div class="verdict">${log.you === r.label ? I.ok : I.no}<span>${esc(t('you_said', { x: title(log.you) }))}</span></div>
+      <div class="verdict">${log.ai === r.label ? I.ok : I.no}<span>${esc(t('ai_said', { x: title(log.ai), p: pct(log.conf) }))}${log.conf < TH() ? `<span class="note">${esc(t('ai_unsure_note'))}</span>` : ''}</span></div>
+      <div class="tell"><b>${esc(t('how_to_tell'))}:</b> ${esc(loc(cards[r.label].signs)[0])}</div>
+      <button class="btn btn-primary" type="button" data-game="next">${esc(last ? t('see_results') : t('next_leaf'))}</button>
+    </div>`;
+  }
+  v.innerHTML = `${scoreCard(G.bump)}
+    <div class="stage-row"><span class="t-head">${esc(stageName)}</span><span class="small num">${esc(t('round_of', { i: idx, n }))}</span></div>
+    <div id="g-photo"></div>${body}`;
+  G.bump = null;
+  const forRound = G.i;
+  loadImage(photo(r.file)).then(img => {
+    if (forRound !== G.i || !$('#g-photo')) return;
+    const ph = makePhoto(img, 32, { toggle: !!log, heatOn: !!G.heat }); G.ph = ph;
+    if (log) ph.setCam(log.cam);
+    $('#g-photo').replaceWith(ph.el);
+  });
+}
+
+async function answer(choice) {
+  if (G.busy || G.log[G.i]) return;
+  G.busy = true; G.chosen = choice; renderGame();
+  const r = G.rounds[G.i];
+  try { await modelReady; } catch (e) { G.busy = false; return; }
+  const img = await loadImage(photo(r.file));
+  const [res] = await Promise.all([diagnose(prepare(img)), sleep(650)]);
+  const ai = meta.classes[res.order[0]], conf = res.probs[res.order[0]];
+  const youRight = choice === r.label, aiRight = ai === r.label;
+  if (youRight) G.you++;
+  if (aiRight) G.ai++;
+  G.bump = youRight && aiRight ? null : youRight ? 'you' : aiRight ? 'ai' : null;
+  G.log[G.i] = { you: choice, ai, conf, cam: camFor(res.features, res.order[0]), stage: r.stage, label: r.label };
+  G.busy = false; G.phase = 'reveal'; G.heat = false;
+  if (navigator.vibrate) navigator.vibrate(youRight ? 25 : [20, 60, 20]);
+  renderGame();
+  toTop(true);
+}
+
+function renderResults(v) {
+  const L = G.log, lab = L.filter(x => x.stage === 'lab'), field = L.filter(x => x.stage === 'field');
+  const cnt = (a, who) => a.filter(x => x[who] === x.label).length;
+  const sureWrong = L.filter(x => x.ai !== x.label && x.conf >= TH()).length;
+  const anyWrong = L.some(x => x.ai !== x.label);
+  const verdict = G.you > G.ai ? t('result_you_win') : G.you < G.ai ? t('result_ai_wins') : t('result_draw');
+  const s = meta.stats, th = pct(TH());
+  v.innerHTML = `<div class="card final">
+      <div class="t-title">${esc(verdict)}</div>
+      <div class="big"><span class="y">${G.you}</span><span class="sep">:</span><span class="a">${G.ai}</span></div>
+      <div class="who-row"><span>${esc(t('you'))}</span><span>${esc(t('ai'))}</span></div>
+    </div>
+    <div class="group" style="margin-top:16px">
+      <div class="row"><span class="grow small" style="font-weight:600"></span><span class="small" style="width:64px;text-align:right;font-weight:600">${esc(t('you'))}</span><span class="small" style="width:64px;text-align:right;font-weight:600">${esc(t('ai'))}</span></div>
+      <div class="row"><span class="grow">${esc(t('stage1_name'))}</span><span class="num" style="width:64px;text-align:right">${cnt(lab, 'you')} / ${lab.length}</span><span class="num" style="width:64px;text-align:right">${cnt(lab, 'ai')} / ${lab.length}</span></div>
+      <div class="row"><span class="grow">${esc(t('stage2_name'))}</span><span class="num" style="width:64px;text-align:right">${cnt(field, 'you')} / ${field.length}</span><span class="num" style="width:64px;text-align:right">${cnt(field, 'ai')} / ${field.length}</span></div>
+    </div>
+    <h2 class="label">${esc(t('what_this_shows'))}</h2>
+    <div class="card"><ul class="lessons">
+      <li>${esc(t('lesson_lab', { ai: cnt(lab, 'ai'), n: lab.length, acc: pct(s.test_accuracy) }))}</li>
+      <li>${esc(t('lesson_field', { ai: cnt(field, 'ai'), n: field.length, acc: pct(s.plantdoc_accuracy) }))}</li>
+      ${anyWrong ? `<li>${esc(sureWrong ? t('lesson_sure', { k: sureWrong, t: th }) : t('lesson_sure_none', { t: th }))}</li>` : ''}
+    </ul></div>
+    <div style="margin-top:16px"><button class="btn btn-primary" type="button" data-game="start">${esc(t('play_again'))}</button></div>`;
+}
+
+function nextRound() {
+  if (G.nextPhase === 'results') {
+    G.phase = 'results';
+    const best = store.get('best', null);
+    if (!best || G.you > best.you || (G.you === best.you && G.ai < best.ai)) store.set('best', { you: G.you, ai: G.ai });
+  } else if (G.nextPhase === 'stage2') { G.i++; G.phase = 'stage2'; }
+  else { G.i++; G.phase = 'round'; }
+  renderGame(); toTop();
+}
+
+// ---------- link and QR ----------
+function qrSvg(text) {
+  try {
+    const q = qrcode(0, 'M'); q.addData(text); q.make();
+    return q.createSvgTag({ cellSize: 4, margin: 0, scalable: true }).replace('<svg ', '<svg role="img" aria-label="QR code" ');
+  } catch (e) { return ''; }
+}
+function renderDesk() {
+  const box = $('#desk-qr');
+  if (box && !box.dataset.done) { box.innerHTML = qrSvg(appUrl()); box.dataset.done = '1'; }
+  const link = $('#desk-link'); if (link) link.textContent = appUrl();
+}
+
+// ---------- about ----------
+function renderAbout() {
+  const v = $('#view-about');
+  if (!cards) return;
+  const s = meta ? meta.stats : null, th = pct(TH());
+  const standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+  const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const mb = meta ? (meta.model_bytes / 1e6).toFixed(1) + ' MB' : '…';
+  const backend = backendName ? (backendName === 'wasm' ? 'WebAssembly (CPU)' : backendName === 'webgl' ? 'WebGL (GPU)' : 'CPU') : '…';
+  const speed = speedMs ? t('speed_result', { ms: Math.round(speedMs) }).replace(/ \(.*\)$/, '').replace(/ \(.*\)।?$/, '') : t('not_measured');
+  v.innerHTML = `<h1 class="t-large">${esc(t('about_title'))}</h1><p class="muted">${esc(t('about_lead'))}</p>
+    <div class="chips" style="margin:12px 0 0" data-status>${statusChips()}</div>
+    <ol class="group steps" style="margin-top:16px">${['step1', 'step2', 'step3', 'step4', 'step5', 'step6'].map((k, i) => `<li><span class="n">${i + 1}</span><span>${esc(t(k, { t: th }))}</span></li>`).join('')}</ol>
+    <h2 class="label">${esc(t('how_well'))}</h2>
+    ${s ? `<div class="group">
+      <div class="row metric"><span class="grow">${esc(t('m_lab'))}</span><span class="val">${esc(t('m_lab_v', { acc: (s.test_accuracy * 100).toFixed(1), f1: s.test_macro_f1.toFixed(2) }))}</span></div>
+      <div class="row metric"><span class="grow">${esc(t('m_gate', { t: th }))}</span><span class="val">${esc(t('m_gate_v', { share: pct(s.threshold_answered_share), acc: pct(s.threshold_accuracy_on_answered) }))}</span></div>
+      <div class="row metric"><span class="grow">${esc(t('m_field'))}</span><span class="val">${esc(t('m_field_v', { f1: s.field_cv_macro_f1.toFixed(2) }))}</span></div>
+      <div class="row metric"><span class="grow">${esc(t('m_pd'))}</span><span class="val bad">${esc(t('m_pd_v', { acc: (s.plantdoc_accuracy * 100).toFixed(1) }))}</span></div>
+    </div>` : `<div class="busy"><div class="spinner"></div></div>`}
+    <h2 class="label">${esc(t('on_phone'))}</h2>
+    <div class="group">
+      <div class="row"><span class="grow">${esc(t('p_size'))}</span><span class="val">${mb}</span></div>
+      <div class="row"><span class="grow">${esc(t('p_backend'))}</span><span class="val">${esc(backend)}</span></div>
+      <div class="row"><span class="grow">${esc(t('p_speed'))}</span><span class="val" id="speed-cell">${esc(speed)}</span></div>
+      <div class="row"><span class="grow">${esc(t('p_offline'))}</span><span class="val">${esc(offlineReady ? t('yes') : t('not_yet'))}</span></div>
+    </div>
+    <div class="btn-row" style="margin-top:12px">
+      <button class="btn btn-tonal" type="button" data-act="speed" ${modelState !== 'ready' ? 'disabled' : ''}>${esc(t('run_speed'))}</button>
+      ${standalone ? `<button class="btn btn-secondary" type="button" disabled>${esc(t('installed'))}</button>`
+        : installPrompt ? `<button class="btn btn-primary" type="button" data-act="install">${esc(t('install'))}</button>` : ''}
+    </div>
+    ${!standalone && !installPrompt && ios ? `<p class="small" style="margin:10px 4px 0">${esc(t('install_ios'))}</p>` : ''}
+    <h2 class="label">${esc(t('share_title'))}</h2>
+    <div class="card qr-card">
+      <div class="qr">${qrSvg(appUrl())}</div>
+      <div style="min-width:0"><p class="small" style="color:var(--ink)">${esc(t('share_body'))}</p>
+        <div class="qr-link">${esc(appUrl())}</div>
+        <button class="btn btn-secondary" type="button" data-act="share" style="min-height:42px;padding:8px 12px">${I.share}<span>${esc(navigator.share ? t('share_link') : t('copy_link'))}</span></button>
+      </div>
+    </div>
+    <h2 class="label">${esc(t('data_title'))}</h2>
+    <div class="card"><p style="margin:0 0 12px">${esc(t('data_body'))}</p><div class="warn-box" style="margin:0">${esc(t('disclaimer'))}</div></div>
+    <p class="foot">${esc(t('credit'))}${lang !== 'en' ? ' ' + esc(t('lang_note')) : ''}</p>`;
+  if (modelState === 'ready' && !speedMs && !runSpeedTest.running) setTimeout(() => runSpeedTest(null, 5), 400);
+}
+
+async function runSpeedTest(btn, n = 10) {
+  if (runSpeedTest.running) return;
+  runSpeedTest.running = true;
+  if (btn) btn.disabled = true;
+  const cell = $('#speed-cell'); if (cell) cell.textContent = t('speed_running');
+  try {
+    await modelReady;
+    const img = await loadImage(photo(game.samples[0].file));
+    speedMs = await benchmark(prepare(img), n); speedRuns = n;
+  } finally { runSpeedTest.running = false; }
+  if (currentView === 'about') renderAbout();
+}
+
+async function shareLink() {
+  const url = appUrl();
+  if (navigator.share) { try { await navigator.share({ title: t('app_name'), url }); } catch (e) { /* closed */ } return; }
+  try { await navigator.clipboard.writeText(url); toast(t('link_copied')); } catch (e) { toast(url); }
+}
+
+// ---------- offline + install ----------
+async function checkOffline() {
+  if (!('caches' in window)) return;
+  try {
+    const hit = await caches.match('model/group1-shard1of1.bin', { ignoreSearch: true });
+    offlineReady = !!hit && !!navigator.serviceWorker.controller;
+  } catch (e) { offlineReady = false; }
+  renderStatus(); if (currentView === 'about') renderAbout();
+}
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').then(() => navigator.serviceWorker.ready).then(checkOffline).catch(() => {});
+    navigator.serviceWorker.addEventListener('message', e => { if (e.data === 'cached') checkOffline(); });
+    navigator.serviceWorker.addEventListener('controllerchange', checkOffline);
+  });
+}
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); installPrompt = e; if (currentView === 'about') renderAbout(); });
+window.addEventListener('appinstalled', () => { installPrompt = null; if (currentView === 'about') renderAbout(); });
+
+// ---------- events ----------
+document.addEventListener('click', async e => {
+  const el = e.target.closest('button');
+  if (!el) return;
+  if (el.dataset.lang) setLang(el.dataset.lang);
+  else if (el.dataset.view) { if (location.hash.slice(1) === el.dataset.view) toTop(true); else location.hash = el.dataset.view; }
+  else if (el.dataset.sample !== undefined) { checkPhoto(photo(game.samples[+el.dataset.sample].file)); }
+  else if (el.dataset.heat !== undefined) {
+    const on = el.dataset.heat === '1';
+    if (lastCheck && lastCheck.photo && lastCheck.photo.el.contains(el)) {
+      lastCheck.showHeat = on; lastCheck.photo.showHeat(on);
+      const note = document.querySelector('.heat-note'); if (note) note.hidden = !on;
+    } else if (G.ph && G.ph.el.contains(el)) { G.heat = on; G.ph.showHeat(on); }
+  }
+  else if (el.dataset.act === 'again') resetCheck();
+  else if (el.dataset.act === 'speak') speakResult();
+  else if (el.dataset.act === 'speed') runSpeedTest(el, 10);
+  else if (el.dataset.act === 'share') shareLink();
+  else if (el.dataset.act === 'install' && installPrompt) { installPrompt.prompt(); await installPrompt.userChoice; installPrompt = null; renderAbout(); }
+  else if (el.dataset.opt) answer(el.dataset.opt);
+  else if (el.dataset.game === 'start') newGame();
+  else if (el.dataset.game === 'continue') { G.phase = 'round'; renderGame(); toTop(); }
+  else if (el.dataset.game === 'next') nextRound();
+});
+for (const id of ['#in-camera', '#in-gallery']) {
+  $(id).addEventListener('change', e => {
+    const f = e.target.files && e.target.files[0];
+    if (f) checkPhoto(URL.createObjectURL(f));
+  });
+}
+window.addEventListener('hashchange', () => showView(location.hash.slice(1)));
+
+// For testing from the browser console.
+window.leafDebug = { modelReady, prepare, diagnose, loadImage, camFor, photo };
+
+// ---------- start ----------
+(async function init() {
+  document.documentElement.lang = lang;
+  renderLangButtons(); applyStatic(); renderDesk();
+  const [c, g, ph] = await Promise.all(['data/cards.json', 'data/game.json', 'data/photos.json'].map(u => fetch(u).then(r => r.json())));
+  cards = c; game = g; PHOTOS = ph;
+  renderHome(); renderGame();
+  showView(location.hash.slice(1));
+})();
+</script>
 </body>
 </html>
